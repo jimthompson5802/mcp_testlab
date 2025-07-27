@@ -1,8 +1,8 @@
 ---
 title: Mcp Sentiment
-emoji: 🐠
-colorFrom: purple
-colorTo: yellow
+emoji: 📊
+colorFrom: yellow
+colorTo: pink
 sdk: gradio
 sdk_version: 5.38.2
 app_file: app.py
