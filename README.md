@@ -74,6 +74,6 @@ Sample output will show the available tools and their descriptions, allowing you
 - Python 3.8+
 - MCP library (`pip install mcp`)
 - Required NLP libraries for sentiment analysis
-- Required version of `node` > v20.x to run MCP Inspector (see [GH Issue on Unexpeccted Token](https://github.com/modelcontextprotocol/python-sdk/issues/184#issuecomment-2788071291))
+- Required version of `node` > v20.x to run MCP Inspector (see [GH Issue on unexpected token](https://github.com/modelcontextprotocol/python-sdk/issues/184#issuecomment-2788071291))
 
 
