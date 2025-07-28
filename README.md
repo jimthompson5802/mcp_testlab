@@ -174,7 +174,8 @@ The MCP Inspector is a tool for exploring and interacting with Model Context Pro
 - Sending requests to tools and viewing responses
 - Debugging and testing MCP interactions
 
-To run the MCP Inspector, use the following command:
+### Running MCP Inspector with `stdio` Transport
+To run the MCP Inspector for server using `stdio` transport, use the following command:
 
 ```bash
 mcp dev mcp-sentiment/app_fastmcp.py
@@ -185,8 +186,37 @@ Sample output will show the available tools and their descriptions, allowing you
 ### MCP Inspector Listing Tools
 ![](./images/mcp_inspector_list_tools.png)
 
-### MCP Inspector Testing Sentiment Analysis Tool
+### MCP Inspector Testing Sentiment Analysis
 ![](./images/mcp_inspector_sentiment_tool.png)
+
+
+### Running MCP Inspector with `sse` Transport
+
+
+
+### Starting the `sse` Server for testing
+```bash
+python mcp-sentiment/app_fastmcp.py --transport sse
+```
+
+![](./images/mcp_inspector_starting_sse_server.png)
+
+To run the MCP Inspector for server using `sse` transport, use the following command:
+
+```bash
+npx @modelcontextprotocol/inspector
+```
+
+### Connecting to the MCP Inspector
+Open the browser to access the MCP Inspector interface, change from `http` to `https` if necessary.  Once the MCP Inspector is running, configure "Transport Type" for `sse` and set the server URL to point to your running MCP server (e.g., `http://localhost:8000/sse`) and click "Connect" button.
+![](./images/mcp_inspector_connect_sse_server.png)
+
+
+### MCP Inspector Testing Sentiment Analysis
+![](./images/mcp_inspector_sentiment_with_sse_server.png)
+
+
+
 
 
 ## Requirements
