@@ -46,10 +46,34 @@ The `mcp_client_stdio.py` file implements an MCP client that:
 - Receives and displays the JSON response with sentiment results
 - Properly manages resources with async context managers
 
+## MCP Inspector
+
+The MCP Inspector is a tool for exploring and interacting with Model Context Protocol (MCP) servers. It provides a user-friendly interface for:
+
+- Discovering available tools and their capabilities
+- Sending requests to tools and viewing responses
+- Debugging and testing MCP interactions
+
+To run the MCP Inspector, use the following command:
+
+```bash
+mcp dev mcp-sentiment/app_fastmcp.py
+```
+
+Sample output will show the available tools and their descriptions, allowing you to interact with the sentiment analysis tool.
+
+### MCP Inspector Listing Tools
+![](./images/mcp_inspector_list_tools.png)
+
+### MCP Inspector Testing Sentiment Analysis Tool
+![](./images/mcp_inspector_sentiment_tool.png)
+
+
 ## Requirements
 
 - Python 3.8+
 - MCP library (`pip install mcp`)
 - Required NLP libraries for sentiment analysis
+- Required version of `node` > v20.x to run MCP Inspector (see [GH Issue on Unexpeccted Token](https://github.com/modelcontextprotocol/python-sdk/issues/184#issuecomment-2788071291))
 
 
