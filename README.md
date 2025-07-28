@@ -69,6 +69,7 @@ tools: ['sentiment_analysis']
 
 Sentiment Analysis Result: [TextContent(type='text', text='{"polarity": -0.8, "subjectivity": 0.9, "assessment": "negative"}', annotations=None, meta=None)]
 ((venv) ) Mac:jim mcp_testlab[524]$ 
+```
 
 ## MCP Inspector
 
