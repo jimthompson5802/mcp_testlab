@@ -1,3 +1,4 @@
 gradio[mcp]
 textblob
 requests
+uv
