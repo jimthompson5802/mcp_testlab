@@ -46,6 +46,30 @@ The `mcp_client_stdio.py` file implements an MCP client that:
 - Receives and displays the JSON response with sentiment results
 - Properly manages resources with async context managers
 
+### Example Usage
+```bash
+((venv) ) Mac:jim mcp_testlab[520]$ python mcp-sentiment/mcp_client_stdio.py "I love python"
+
+Connected to MCP server. Listing available tools...
+[07/27/25 23:34:42] INFO     Processing request of type ListToolsRequest                                                                                                                       server.py:619
+
+tools: ['sentiment_analysis']
+                    INFO     Processing request of type CallToolRequest                                                                                                                        server.py:619
+
+Sentiment Analysis Result: [TextContent(type='text', text='{"polarity": 0.5, "subjectivity": 0.6, "assessment": "positive"}', annotations=None, meta=None)]
+
+
+((venv) ) Mac:jim mcp_testlab[523]$ python mcp-sentiment/mcp_client_stdio.py "I hate python"
+
+Connected to MCP server. Listing available tools...
+[07/27/25 23:36:35] INFO     Processing request of type ListToolsRequest                                                                                                                       server.py:619
+
+tools: ['sentiment_analysis']
+                    INFO     Processing request of type CallToolRequest                                                                                                                        server.py:619
+
+Sentiment Analysis Result: [TextContent(type='text', text='{"polarity": -0.8, "subjectivity": 0.9, "assessment": "negative"}', annotations=None, meta=None)]
+((venv) ) Mac:jim mcp_testlab[524]$ 
+
 ## MCP Inspector
 
 The MCP Inspector is a tool for exploring and interacting with Model Context Protocol (MCP) servers. It provides a user-friendly interface for:
