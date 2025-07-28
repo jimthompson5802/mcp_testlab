@@ -39,10 +39,13 @@ class MCPClient:
 
         await self.session.initialize()
 
+    async def list_tools(self):
+        """List available tools on the MCP server"""
+
         # List available tools
         response = await self.session.list_tools()
         tools = response.tools
-        print("\nConnected to server with tools:", [tool.name for tool in tools])
+        return tools
 
     async def mcp_request(self, text):
         """Use MCP client to call sentiment analysis tool
@@ -70,16 +73,22 @@ class MCPClient:
 
 
 async def main():
-    # if len(sys.argv) < 2:
-    #     print("Usage: python mcp_client_sample.py <path_to_server_script>")
-    #     sys.exit(1)
+    if len(sys.argv) < 2:
+        print("Text to test must be specified.")
+        sys.exit(1)
+
+    text_to_test = sys.argv[1]
 
     client = MCPClient()
     try:
-        mcp_server_script = "mcp-sentiment/app_fastmcp.py"  # sys.argv[1]
+        mcp_server_script = "mcp-sentiment/app_fastmcp.py"
         await client.connect_to_server(mcp_server_script)
-        # await client.chat_loop()
-        response = await client.mcp_request("I hate programming in Python!")
+
+        print("\nConnected to MCP server. Listing available tools...")
+        tools = await client.list_tools()
+        print("\ntools:", [tool.name for tool in tools])
+
+        response = await client.mcp_request(text_to_test)
         print("\nSentiment Analysis Result:", response)
     finally:
         await client.cleanup()

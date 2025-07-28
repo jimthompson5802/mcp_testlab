@@ -5,7 +5,7 @@ import argparse
 from mcp.server.fastmcp import FastMCP
 
 
-mcp = FastMCP("Text Sentiment Analysis", log_level="DEBUG")
+mcp = FastMCP("Text Sentiment Analysis")
 
 
 @mcp.tool()
