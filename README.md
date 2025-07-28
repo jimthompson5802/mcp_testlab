@@ -6,13 +6,20 @@ This project demonstrates sentiment analysis using the Model Context Protocol (M
 
 - `mcp-sentiment/app_fastmcp.py`: MCP server script for sentiment analysis.
 - `mcp-sentiment/mcp_client_stdio.py`: MCP client that connects to the server and requests sentiment analysis via command line.
+- `mcp-sentiment/mcp_client_sse.py`: MCP client that connects to the server and requests sentiment analysis via SSE transport.
 
 ## Usage
 
-To run sentiment analysis from the command line:
+To run sentiment analysis from the command line using stdio transport:
 
 ```bash
 python mcp-sentiment/mcp_client_stdio.py "Your text to test sentiment"
+```
+
+To run sentiment analysis from the command line using SSE transport:
+
+```bash
+python mcp-sentiment/mcp_client_sse.py "Your text to test sentiment"
 ```
 
 If no text is provided, the program will exit with an error message.
@@ -21,7 +28,7 @@ If no text is provided, the program will exit with an error message.
 
 The application uses Model Context Protocol (MCP) to facilitate communication between a client and a sentiment analysis server. When you run the client with a text string, it:
 
-1. Connects to the server script (`app_fastmcp.py`)
+1. Connects to the server script (`app_fastmcp.py`) or SSE endpoint
 2. Sends your text for sentiment analysis
 3. Returns the sentiment result (positive, negative, or neutral)
 
@@ -34,7 +41,7 @@ The `app_fastmcp.py` file implements an MCP server using FastMCP that:
   - Polarity score (-1 to 1, negative to positive)
   - Subjectivity score (0 to 1, objective to subjective)
   - Overall assessment (positive, negative, or neutral)
-- Supports stdio transport for communication with clients
+- Supports `stdio` or `sse`transport for communication with clients
 
 ### Client (mcp_client_stdio.py)
 
@@ -46,7 +53,20 @@ The `mcp_client_stdio.py` file implements an MCP client that:
 - Receives and displays the JSON response with sentiment results
 - Properly manages resources with async context managers
 
-### Example Usage
+### Client (mcp_client_sse.py)
+
+The `mcp_client_sse.py` file implements an MCP client that:
+- Accepts text input from the command line
+- Establishes a connection to the MCP server using SSE transport
+- Lists available tools on the connected server
+- Sends the input text to the sentiment_analysis tool
+- Receives and displays the JSON response with sentiment results
+- Properly manages resources with async context managers
+
+### Example Usage with `stdio` Transport
+
+```bash
+((venv) ) Mac:jim mcp_testlab[520]$ python mcp-sentiment/mcp_client_stdio.py "I love python"
 ```bash
 ((venv) ) Mac:jim mcp_testlab[520]$ python mcp-sentiment/mcp_client_stdio.py "I love python"
 
@@ -69,6 +89,81 @@ tools: ['sentiment_analysis']
 
 Sentiment Analysis Result: [TextContent(type='text', text='{"polarity": -0.8, "subjectivity": 0.9, "assessment": "negative"}', annotations=None, meta=None)]
 ((venv) ) Mac:jim mcp_testlab[524]$ 
+```
+
+### Example Usage with `sse` Transport
+
+**Client**
+```bash
+((venv) ) Mac:jim mcp_testlab[516]$ python mcp-sentiment/mcp_client_sse.py "I love kittens"
+
+Connected to MCP server. Listing available tools...
+
+tools: ['sentiment_analysis']
+
+Sentiment Analysis Result: [TextContent(type='text', text='{"polarity": 0.5, "subjectivity": 0.6, "assessment": "positive"}', annotations=None, meta=None)]
+
+
+((venv) ) Mac:jim mcp_testlab[517]$ python mcp-sentiment/mcp_client_sse.py "this movie is terrible, a waste of money"
+
+Connected to MCP server. Listing available tools...
+
+tools: ['sentiment_analysis']
+
+Sentiment Analysis Result: [TextContent(type='text', text='{"polarity": -0.6, "subjectivity": 0.5, "assessment": "negative"}', annotations=None, meta=None)]
+((venv) ) Mac:jim mcp_testlab[518]$ ```
+``` 
+
+**SSE Server**
+```bash
+((venv) ) Mac:jim mcp_testlab[517]$ python mcp-sentiment/app_fastmcp.py --transport sse
+INFO:     Started server process [34093]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:50141 - "GET /sse HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50143 - "POST /messages/?session_id=8a3facb39d544dca8acc9cd9af4893d9 HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:50143 - "POST /messages/?session_id=8a3facb39d544dca8acc9cd9af4893d9 HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:50143 - "POST /messages/?session_id=8a3facb39d544dca8acc9cd9af4893d9 HTTP/1.1" 202 Accepted
+[07/28/25 06:51:02] INFO     Processing request of type ListToolsRequest                                                                                                                                               server.py:619
+INFO:     127.0.0.1:50143 - "POST /messages/?session_id=8a3facb39d544dca8acc9cd9af4893d9 HTTP/1.1" 202 Accepted
+                    INFO     Processing request of type CallToolRequest                                                                                                                                                server.py:619
+INFO:     127.0.0.1:50146 - "GET /sse HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50148 - "POST /messages/?session_id=68de3cfbb3b7440194c7884e42d85d3c HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:50148 - "POST /messages/?session_id=68de3cfbb3b7440194c7884e42d85d3c HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:50148 - "POST /messages/?session_id=68de3cfbb3b7440194c7884e42d85d3c HTTP/1.1" 202 Accepted
+[07/28/25 06:51:06] INFO     Processing request of type ListToolsRequest                                                                                                                                               server.py:619
+INFO:     127.0.0.1:50148 - "POST /messages/?session_id=68de3cfbb3b7440194c7884e42d85d3c HTTP/1.1" 202 Accepted
+                    INFO     Processing request of type CallToolRequest                                                                                                                                                server.py:619
+^CINFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [34093]
+Traceback (most recent call last):
+  File "/opt/homebrew/Cellar/python@3.12/3.12.11/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.11/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/base_events.py", line 691, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+asyncio.exceptions.CancelledError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/jim/Desktop/modelcontextprotocol/mcp_testlab/mcp-sentiment/app_fastmcp.py", line 52, in <module>
+    mcp.run(transport=args.transport)
+  File "/Users/jim/Desktop/modelcontextprotocol/mcp_testlab/venv/lib/python3.12/site-packages/mcp/server/fastmcp/server.py", line 228, in run
+    anyio.run(lambda: self.run_sse_async(mount_path))
+  File "/Users/jim/Desktop/modelcontextprotocol/mcp_testlab/venv/lib/python3.12/site-packages/anyio/_core/_eventloop.py", line 74, in run
+    return async_backend.run(func, args, {}, backend_options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/jim/Desktop/modelcontextprotocol/mcp_testlab/venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 2310, in run
+    return runner.run(wrapper())
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.11/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/runners.py", line 123, in run
+    raise KeyboardInterrupt()
+KeyboardInterrupt
 ```
 
 ## MCP Inspector
