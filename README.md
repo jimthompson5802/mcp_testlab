@@ -1,6 +1,7 @@
 # MCP Testbed
 
-This project demonstrates sentiment analysis using the Model Context Protocol (MCP) and is based on the [Hugging Face MCP Course](https://huggingface.co/learn/mcp-course/unit2/introduction).  Instead of using the `gradio` library in the HuggingFace course, this project utilizes the `fastmcp` library to implement an MCP server and client.
+This project demonstrates sentiment analysis using the Model Context Protocol (MCP) and is based on the [Hugging Face MCP Course](https://huggingface.co/learn/mcp-course/unit2/introduction). Instead of using the `gradio` library in the HuggingFace course, this project utilizes the `fastmcp` library to implement an MCP server and client.
+
 
 ## Folder Structure
 
@@ -23,10 +24,22 @@ To run sentiment analysis from the command line using SSE transport:
 python mcp-sentiment/mcp_client_sse.py "Your text to test sentiment"
 ```
 
+You can also specify the URL for the SSE endpoint:
+
+```bash
+python mcp-sentiment/mcp_client_sse.py "Your text to test sentiment" --url "http://localhost:8000/sse"
+```
+
 To run sentiment analysis from the command line using streamable-http transport:
 
 ```bash
 python mcp-sentiment/mcp_client_streamable.py "Your text to test sentiment"
+```
+
+You can also specify the URL for the streamable-http endpoint:
+
+```bash
+python mcp-sentiment/mcp_client_streamable.py "Your text to test sentiment" --url "http://localhost:8000/mcp"
 ```
 
 If no text is provided, the program will exit with an error message.
@@ -63,7 +76,9 @@ The `mcp_client_stdio.py` file implements an MCP client that:
 ### Client (mcp_client_sse.py)
 
 The `mcp_client_sse.py` file implements an MCP client that:
-- Accepts text input from the command line
+- Uses the argparse library for command-line argument handling
+- Accepts text input as a required positional argument
+- Accepts an optional `--url` parameter to specify the server endpoint
 - Establishes a connection to the MCP server using SSE transport
 - Lists available tools on the connected server
 - Sends the input text to the sentiment_analysis tool
@@ -73,7 +88,9 @@ The `mcp_client_sse.py` file implements an MCP client that:
 ### Client (mcp_client_streamable.py)
 
 The `mcp_client_streamable.py` file implements an MCP client that:
-- Accepts text input from the command line
+- Uses the argparse library for command-line argument handling
+- Accepts text input as a required positional argument
+- Accepts an optional `--url` parameter to specify the server endpoint
 - Establishes a connection to the MCP server using streamable-http transport
 - Displays the session ID when available
 - Lists available tools on the connected server
@@ -83,8 +100,6 @@ The `mcp_client_streamable.py` file implements an MCP client that:
 
 ### Example Usage with `stdio` Transport
 
-```bash
-((venv) ) Mac:jim mcp_testlab[520]$ python mcp-sentiment/mcp_client_stdio.py "I love python"
 ```bash
 ((venv) ) Mac:jim mcp_testlab[520]$ python mcp-sentiment/mcp_client_stdio.py "I love python"
 
@@ -111,9 +126,24 @@ Sentiment Analysis Result: [TextContent(type='text', text='{"polarity": -0.8, "s
 
 ### Example Usage with `sse` Transport
 
+**Command-line Arguments**
+```bash
+((venv) ) Mac:jim mcp_testlab[509]$ python mcp-sentiment/mcp_client_sse.py --help
+usage: mcp_client_sse.py [-h] [--url URL] text_to_test
+
+MCP SSE Client for Sentiment Analysis
+
+positional arguments:
+  text_to_test  Text to analyze for sentiment
+
+options:
+  -h, --help    show this help message and exit
+  --url URL     URL of the SSE server endpoint (default: http://localhost:8000/sse)
+```
+
 **Client**
 ```bash
-((venv) ) Mac:jim mcp_testlab[509]$ python mcp-sentiment/mcp_client_sse.py "MCP is great"
+((venv) ) Mac:jim mcp_testlab[510]$ python mcp-sentiment/mcp_client_sse.py "MCP is great"
 
 Connected to MCP server. Listing available tools...
 
@@ -134,6 +164,7 @@ Connected to MCP server. Listing available tools...
 tools: ['sentiment_analysis']
 
 Sentiment Analysis Result: [TextContent(type='text', text='{"polarity": -0.29, "subjectivity": 0.54, "assessment": "negative"}', annotations=None, meta=None)]``` 
+```
 
 **SSE Server**
 ```bash
@@ -172,10 +203,32 @@ Terminated: 15             python mcp-sentiment/app_fastmcp.py --transport sse
 
 ### Example Usage with `streamable-http` Transport
 
+**Command-line Arguments**
+```bash
+((venv) ) Mac:jim mcp_testlab[505]$ python mcp-sentiment/mcp_client_streamable.py --help
+usage: mcp_client_streamable.py [-h] [--url URL] text_to_test
+
+MCP Streamable Client for Sentiment Analysis
+
+positional arguments:
+  text_to_test  Text to analyze for sentiment
+
+options:
+  -h, --help    show this help message and exit
+  --url URL     URL of the streamable-http server endpoint (default: http://localhost:8000/mcp)
+```
+
 **Client**
 ```bash
+# Using the default URL
 ((venv) ) Mac:jim mcp_testlab[506]$ python mcp-sentiment/mcp_client_streamable.py "I love MCP"
 Session ID: 6a17c2206e6e478b830bd0da73771b8b
+
+Connected to MCP server. Listing available tools...
+
+# Using a custom URL
+((venv) ) Mac:jim mcp_testlab[507]$ python mcp-sentiment/mcp_client_streamable.py "I love MCP" --url "http://localhost:8000/mcp"
+Session ID: 8f3b5a9c2d1e7f6b4a8c9d0e7f6a5b4
 
 Connected to MCP server. Listing available tools...
 
