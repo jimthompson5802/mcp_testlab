@@ -7,6 +7,7 @@ This project demonstrates sentiment analysis using the Model Context Protocol (M
 - `mcp-sentiment/app_fastmcp.py`: MCP server script for sentiment analysis.
 - `mcp-sentiment/mcp_client_stdio.py`: MCP client that connects to the server and requests sentiment analysis via command line.
 - `mcp-sentiment/mcp_client_sse.py`: MCP client that connects to the server and requests sentiment analysis via SSE transport.
+- `mcp-sentiment/mcp_client_streamable.py`: MCP client that connects to the server and requests sentiment analysis via streamable-http transport.
 
 ## Usage
 
@@ -20,6 +21,12 @@ To run sentiment analysis from the command line using SSE transport:
 
 ```bash
 python mcp-sentiment/mcp_client_sse.py "Your text to test sentiment"
+```
+
+To run sentiment analysis from the command line using streamable-http transport:
+
+```bash
+python mcp-sentiment/mcp_client_streamable.py "Your text to test sentiment"
 ```
 
 If no text is provided, the program will exit with an error message.
@@ -58,6 +65,17 @@ The `mcp_client_stdio.py` file implements an MCP client that:
 The `mcp_client_sse.py` file implements an MCP client that:
 - Accepts text input from the command line
 - Establishes a connection to the MCP server using SSE transport
+- Lists available tools on the connected server
+- Sends the input text to the sentiment_analysis tool
+- Receives and displays the JSON response with sentiment results
+- Properly manages resources with async context managers
+
+### Client (mcp_client_streamable.py)
+
+The `mcp_client_streamable.py` file implements an MCP client that:
+- Accepts text input from the command line
+- Establishes a connection to the MCP server using streamable-http transport
+- Displays the session ID when available
 - Lists available tools on the connected server
 - Sends the input text to the sentiment_analysis tool
 - Receives and displays the JSON response with sentiment results
@@ -166,6 +184,52 @@ Traceback (most recent call last):
 KeyboardInterrupt
 ```
 
+### Example Usage with `streamable-http` Transport
+
+**Client**
+```bash
+((venv) ) Mac:jim mcp_testlab[506]$ python mcp-sentiment/mcp_client_streamable.py "I love MCP"
+Session ID: 6a17c2206e6e478b830bd0da73771b8b
+
+Connected to MCP server. Listing available tools...
+
+tools: ['sentiment_analysis']
+
+Sentiment Analysis Result: [TextContent(type='text', text='{"polarity": 0.5, "subjectivity": 0.6, "assessment": "positive"}', annotations=None, meta=None)]
+``` 
+
+**Streamable-HTTP Server**
+```bash
+((venv) ) Mac:jim mcp_testlab[507]$ python mcp-sentiment/app_fastmcp.py --transport streamable-http
+INFO:     Started server process [2701]
+INFO:     Waiting for application startup.
+[07/28/25 22:48:20] INFO     StreamableHTTP session manager started                                                                                                               streamable_http_manager.py:112
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     127.0.0.1:54049 - "POST /mcp HTTP/1.1" 307 Temporary Redirect
+[07/28/25 22:48:29] INFO     Created new transport with session ID: 6a17c2206e6e478b830bd0da73771b8b                                                                              streamable_http_manager.py:229
+INFO:     127.0.0.1:54049 - "POST /mcp/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54052 - "POST /mcp HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:54053 - "GET /mcp HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:54052 - "POST /mcp/ HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:54053 - "GET /mcp/ HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54055 - "POST /mcp HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:54055 - "POST /mcp/ HTTP/1.1" 200 OK
+                    INFO     Processing request of type ListToolsRequest                                                                                                                           server.py:619
+INFO:     127.0.0.1:54057 - "POST /mcp HTTP/1.1" 307 Temporary Redirect
+INFO:     127.0.0.1:54057 - "POST /mcp/ HTTP/1.1" 200 OK
+                    INFO     Processing request of type CallToolRequest                                                                                                                            server.py:619
+INFO:     127.0.0.1:54059 - "DELETE /mcp HTTP/1.1" 307 Temporary Redirect
+                    INFO     Terminating session: 6a17c2206e6e478b830bd0da73771b8b                                                                                                        streamable_http.py:633
+INFO:     127.0.0.1:54059 - "DELETE /mcp/ HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+[07/28/25 22:48:42] INFO     StreamableHTTP session manager shutting down                                                                                                         streamable_http_manager.py:116
+INFO:     Application shutdown complete.
+INFO:     Finished server process [2701]
+Terminated: 15             python mcp-sentiment/app_fastmcp.py --transport streamable-http
+```
+
 ## MCP Inspector
 
 The MCP Inspector is a tool for exploring and interacting with Model Context Protocol (MCP) servers. It provides a user-friendly interface for:
@@ -201,20 +265,28 @@ python mcp-sentiment/app_fastmcp.py --transport sse
 
 ![](./images/mcp_inspector_starting_sse_server.png)
 
-To run the MCP Inspector for server using `sse` transport, use the following command:
+To run the MCP Inspector for server using `sse` or `streamable-http` transport, use the following command:
 
 ```bash
 npx @modelcontextprotocol/inspector
 ```
 
 ### Connecting to the MCP Inspector
-Open the browser to access the MCP Inspector interface, change from `http` to `https` if necessary.  Once the MCP Inspector is running, configure "Transport Type" for `sse` and set the server URL to point to your running MCP server (e.g., `http://localhost:8000/sse`) and click "Connect" button.
+Open the browser to access the MCP Inspector interface, change from `http` to `https` if necessary.  Once the MCP Inspector is running, configure "Transport Type" for `sse` or `streamable-http` and set the server URL to point to your running MCP server (e.g., `http://localhost:8000/sse` or `http://localhost:8000/mcp`) and click "Connect" button.
+
+**`sse` Server URL**: `http://localhost:8000/sse`
 ![](./images/mcp_inspector_connect_sse_server.png)
 
-
-### MCP Inspector Testing Sentiment Analysis
 ![](./images/mcp_inspector_sentiment_with_sse_server.png)
 
+
+### Starting the `streamable-http` Server for testing
+```bash
+python mcp-sentiment/app_fastmcp.py --transport streamable-http
+```
+
+**`streamable-http` Server URL**: `http://localhost:8000/mcp`
+![](./images/mcp_inspector_sentiment_with_streamable.png)
 
 
 
