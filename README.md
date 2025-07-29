@@ -90,34 +90,57 @@ options:
 
 **Client**
 ```bash
-((venv) ) Mac:jim mcp_testlab[530]$ python mcp-sentiment/mcp_client_stdio.py "I love mcp"
+((venv) ) Mac:jim mcp_testlab[512]$ python mcp-sentiment/mcp_client_stdio.py "i love  mcp"
 
 Connected to MCP server at mcp-sentiment/app_fastmcp.py
 Listing available tools...
-[07/29/25 08:38:26] INFO     Processing request of type ListToolsRequest                                                                                                                                        server.py:619
+[07/29/25 13:45:16] INFO     Processing request of type ListToolsRequest                                                             server.py:619
 
 Connected to MCP server. Listing available tools...
-                    INFO     Processing request of type ListToolsRequest                                                                                                                                        server.py:619
+                    INFO     Processing request of type ListToolsRequest                                                             server.py:619
 
 Available tools: ['sentiment_analysis']
 
-Analyzing sentiment for: 'I love mcp'
-                    INFO     Processing request of type CallToolRequest                                                                                                                                         server.py:619
+Analyzing sentiment for: 'i love  mcp'
+                    INFO     Processing request of type CallToolRequest                                                              server.py:619
+{'polarity': 0.5, 'subjectivity': 0.6, 'assessment': 'positive'}
 
 Sentiment Analysis Result:
-  Polarity: N/A (-1=negative, 1=positive)
-  Subjectivity: N/A (0=objective, 1=subjective)
-  Assessment: N/A
+  Polarity: 0.5 (-1=negative, 1=positive)
+  Subjectivity: 0.6 (0=objective, 1=subjective)
+  Assessment: positive
 
-
-((venv) ) Mac:jim mcp_testlab[531]$ python mcp-sentiment/mcp_client_stdio.py "I love mcp" -v
+Sentiment Analysis Result: (0.5, 0.6, 'positive')
+((venv) ) Mac:jim mcp_testlab[513]$ python mcp-sentiment/mcp_client_stdio.py "i hate java"
 
 Connected to MCP server at mcp-sentiment/app_fastmcp.py
 Listing available tools...
-[07/29/25 08:38:57] INFO     Processing request of type ListToolsRequest                                                                                                                                        server.py:619
+[07/29/25 13:45:38] INFO     Processing request of type ListToolsRequest                                                             server.py:619
 
 Connected to MCP server. Listing available tools...
-                    INFO     Processing request of type ListToolsRequest                                                                                                                                        server.py:619
+                    INFO     Processing request of type ListToolsRequest                                                             server.py:619
+
+Available tools: ['sentiment_analysis']
+
+Analyzing sentiment for: 'i hate java'
+                    INFO     Processing request of type CallToolRequest                                                              server.py:619
+{'polarity': -0.8, 'subjectivity': 0.9, 'assessment': 'negative'}
+
+Sentiment Analysis Result:
+  Polarity: -0.8 (-1=negative, 1=positive)
+  Subjectivity: 0.9 (0=objective, 1=subjective)
+  Assessment: negative
+
+Sentiment Analysis Result: (-0.8, 0.9, 'negative')
+
+((venv) ) Mac:jim mcp_testlab[514]$ python mcp-sentiment/mcp_client_stdio.py "i really like python" -v
+
+Connected to MCP server at mcp-sentiment/app_fastmcp.py
+Listing available tools...
+[07/29/25 13:46:35] INFO     Processing request of type ListToolsRequest                                                             server.py:619
+
+Connected to MCP server. Listing available tools...
+                    INFO     Processing request of type ListToolsRequest                                                             server.py:619
 
 sentiment_analysis:
   Description: 
@@ -132,25 +155,28 @@ sentiment_analysis:
   Annotations: None
   Inputschema: {'properties': {'text': {'title': 'Text', 'type': 'string'}}, 'required': ['text'], 'title': 'sentiment_analysisArguments', 'type': 'object'}
   Meta: None
-/Users/jim/Desktop/modelcontextprotocol/mcp_testlab/mcp-sentiment/mcp_client_stdio.py:153: PydanticDeprecatedSince211: Accessing the 'model_computed_fields' attribute on the instance is deprecated. Instead, you should access this attribute from the model class. Deprecated in Pydantic V2.11 to be removed in V3.0.
+/Users/jim/Desktop/modelcontextprotocol/mcp_testlab/mcp-sentiment/mcp_client_stdio.py:154: PydanticDeprecatedSince211: Accessing the 'model_computed_fields' attribute on the instance is deprecated. Instead, you should access this attribute from the model class. Deprecated in Pydantic V2.11 to be removed in V3.0.
   value = getattr(tool, attr)
   Model_computed_fields: {}
   Model_config: {'extra': 'allow'}
   Model_extra: {}
-/Users/jim/Desktop/modelcontextprotocol/mcp_testlab/mcp-sentiment/mcp_client_stdio.py:153: PydanticDeprecatedSince211: Accessing the 'model_fields' attribute on the instance is deprecated. Instead, you should access this attribute from the model class. Deprecated in Pydantic V2.11 to be removed in V3.0.
+/Users/jim/Desktop/modelcontextprotocol/mcp_testlab/mcp-sentiment/mcp_client_stdio.py:154: PydanticDeprecatedSince211: Accessing the 'model_fields' attribute on the instance is deprecated. Instead, you should access this attribute from the model class. Deprecated in Pydantic V2.11 to be removed in V3.0.
   value = getattr(tool, attr)
   Model_fields: {'name': FieldInfo(annotation=str, required=True), 'title': FieldInfo(annotation=Union[str, NoneType], required=False, default=None), 'description': FieldInfo(annotation=Union[str, NoneType], required=False, default=None), 'inputSchema': FieldInfo(annotation=dict[str, Any], required=True), 'outputSchema': FieldInfo(annotation=Union[dict[str, Any], NoneType], required=False, default=None), 'annotations': FieldInfo(annotation=Union[ToolAnnotations, NoneType], required=False, default=None), 'meta': FieldInfo(annotation=Union[dict[str, Any], NoneType], required=False, default=None, alias='_meta', alias_priority=2)}
-  Model_fields_set: {'description', 'name', 'inputSchema', 'outputSchema'}
+  Model_fields_set: {'description', 'inputSchema', 'outputSchema', 'name'}
   Outputschema: {'properties': {'result': {'title': 'Result', 'type': 'string'}}, 'required': ['result'], 'title': 'sentiment_analysisOutput', 'type': 'object'}
   Title: None
 
-Analyzing sentiment for: 'I love mcp'
-                    INFO     Processing request of type CallToolRequest                                                                                                                                         server.py:619
+Analyzing sentiment for: 'i really like python'
+                    INFO     Processing request of type CallToolRequest                                                              server.py:619
+{'polarity': 0.2, 'subjectivity': 0.2, 'assessment': 'positive'}
 
 Sentiment Analysis Result:
-  Polarity: N/A (-1=negative, 1=positive)
-  Subjectivity: N/A (0=objective, 1=subjective)
-  Assessment: N/A
+  Polarity: 0.2 (-1=negative, 1=positive)
+  Subjectivity: 0.2 (0=objective, 1=subjective)
+  Assessment: positive
+
+Sentiment Analysis Result: (0.2, 0.2, 'positive')
 ```
 
 ### Example Usage with `sse` Transport
@@ -173,27 +199,19 @@ options:
 
 **Client**
 ```bash
-((venv) ) Mac:jim mcp_testlab[510]$ python mcp-sentiment/mcp_client_sse.py "MCP is great"
+python mcp-sentiment/mcp_client_sse.py "i really like python" 
+Connecting to MCP server at http://localhost:8000/sse...
 
 Connected to MCP server. Listing available tools...
 
-tools: ['sentiment_analysis']
+Available tools: ['sentiment_analysis']
 
-Sentiment Analysis Result: [TextContent(type='text', text='{"polarity": 0.8, "subjectivity": 0.75, "assessment": "positive"}', annotations=None, meta=None)]
-((venv) ) Mac:jim mcp_testlab[510]$ python mcp-sentiment/mcp_client_sse.py "Java is not as good as Python"
+Analyzing sentiment for: 'i really like python'
 
-Connected to MCP server. Listing available tools...
-
-tools: ['sentiment_analysis']
-
-Sentiment Analysis Result: [TextContent(type='text', text='{"polarity": 0.7, "subjectivity": 0.6, "assessment": "positive"}', annotations=None, meta=None)]
-((venv) ) Mac:jim mcp_testlab[511]$ python mcp-sentiment/mcp_client_sse.py "Java is hard to use"
-
-Connected to MCP server. Listing available tools...
-
-tools: ['sentiment_analysis']
-
-Sentiment Analysis Result: [TextContent(type='text', text='{"polarity": -0.29, "subjectivity": 0.54, "assessment": "negative"}', annotations=None, meta=None)]``` 
+Sentiment Analysis Result:
+  Polarity: 0.2 (-1=negative, 1=positive)
+  Subjectivity: 0.2 (0=objective, 1=subjective)
+  Assessment: positive
 ```
 
 **SSE Server**
@@ -252,20 +270,21 @@ options:
 **Client**
 ```bash
 # Using the default URL
-((venv) ) Mac:jim mcp_testlab[506]$ python mcp-sentiment/mcp_client_streamable.py "I love MCP"
-Session ID: 6a17c2206e6e478b830bd0da73771b8b
+((venv) ) Mac:jim mcp_testlab[517]$ python mcp-sentiment/mcp_client_streamable.py "MCP is the best" 
+Connecting to MCP server at http://localhost:8000/mcp...
+Session ID: fdc3c721f04441a1ae4c22cadebc9226
 
 Connected to MCP server. Listing available tools...
 
-# Using a custom URL
-((venv) ) Mac:jim mcp_testlab[507]$ python mcp-sentiment/mcp_client_streamable.py "I love MCP" --url "http://localhost:8000/mcp"
-Session ID: 8f3b5a9c2d1e7f6b4a8c9d0e7f6a5b4
+Available tools: ['sentiment_analysis']
 
-Connected to MCP server. Listing available tools...
+Analyzing sentiment for: 'MCP is the best'
 
-tools: ['sentiment_analysis']
-
-Sentiment Analysis Result: [TextContent(type='text', text='{"polarity": 0.5, "subjectivity": 0.6, "assessment": "positive"}', annotations=None, meta=None)]
+Sentiment Analysis Result:
+  Polarity: 1.0 (-1=negative, 1=positive)
+  Subjectivity: 0.3 (0=objective, 1=subjective)
+  Assessment: positive
+  
 ``` 
 
 **Streamable-HTTP Server**
