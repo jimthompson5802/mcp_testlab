@@ -1,5 +1,5 @@
 import asyncio
-import sys
+import argparse
 from typing import Optional
 from contextlib import AsyncExitStack
 
@@ -70,23 +70,32 @@ class MCPClient:
 
 
 async def main():
-    if len(sys.argv) < 2:
-        print("Text to test must be specified.")
-        sys.exit(1)
+    # Set up argument parsing
+    parser = argparse.ArgumentParser(
+        description="MCP Streamable Client for Sentiment Analysis"
+    )
+    parser.add_argument("text_to_test", type=str, help="Text to analyze for sentiment")
+    parser.add_argument(
+        "--url",
+        type=str,
+        default="http://localhost:8000/mcp",
+        help="URL of the streamable-http server endpoint (default: http://localhost:8000/mcp)",
+    )
 
-    text_to_test = sys.argv[1]
+    # Parse arguments
+    args = parser.parse_args()
 
     client = MCPClient()
     try:
-        # Use the streamable-http endpoint URL for the sentiment analysis server
-        mcp_server_url = "http://localhost:8000/mcp"
+        # Use the provided server URL
+        mcp_server_url = args.url
         await client.connect_to_server(mcp_server_url)
 
         print("\nConnected to MCP server. Listing available tools...")
         tools = await client.list_tools()
         print("\ntools:", [tool.name for tool in tools])
 
-        response = await client.mcp_request(text_to_test)
+        response = await client.mcp_request(args.text_to_test)
         print("\nSentiment Analysis Result:", response)
     finally:
         await client.cleanup()
