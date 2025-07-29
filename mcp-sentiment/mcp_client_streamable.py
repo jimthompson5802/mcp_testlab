@@ -77,20 +77,20 @@ class MCPClient:
         return tools
 
     async def mcp_request(self, text: str) -> Union[Dict[str, Any], str]:
-        """Use MCP client to call sentiment analysis tool.
+        """Send a sentiment analysis request to the MCP server.
 
-        This method sends the provided text to the server for sentiment analysis
-        and returns the parsed result.
+        Sends the provided text to the server using the 'sentiment_analysis' tool,
+        and returns the parsed sentiment analysis result.
 
         Args:
-            text: The text to analyze for sentiment
+            text (str): The text to analyze for sentiment.
 
         Returns:
-            The sentiment analysis result as a dictionary containing polarity,
-            subjectivity, and assessment values, or an error message as string
+            dict: Sentiment analysis result containing polarity, subjectivity, and assessment.
+            str: Error message if the request fails.
 
         Raises:
-            RuntimeError: If the client is not connected to a server
+            RuntimeError: If the client is not connected to a server.
         """
         if not self.session:
             raise RuntimeError("Not connected to an MCP server")
