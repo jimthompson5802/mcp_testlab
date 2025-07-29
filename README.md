@@ -48,7 +48,7 @@ The `app_fastmcp.py` file implements an MCP server using FastMCP that:
   - Polarity score (-1 to 1, negative to positive)
   - Subjectivity score (0 to 1, objective to subjective)
   - Overall assessment (positive, negative, or neutral)
-- Supports `stdio` or `sse`transport for communication with clients
+- Supports `stdio` or `sse` or `streamable-http` transport for communication with clients
 
 ### Client (mcp_client_stdio.py)
 
