@@ -113,75 +113,61 @@ Sentiment Analysis Result: [TextContent(type='text', text='{"polarity": -0.8, "s
 
 **Client**
 ```bash
-((venv) ) Mac:jim mcp_testlab[516]$ python mcp-sentiment/mcp_client_sse.py "I love kittens"
+((venv) ) Mac:jim mcp_testlab[509]$ python mcp-sentiment/mcp_client_sse.py "MCP is great"
 
 Connected to MCP server. Listing available tools...
 
 tools: ['sentiment_analysis']
 
-Sentiment Analysis Result: [TextContent(type='text', text='{"polarity": 0.5, "subjectivity": 0.6, "assessment": "positive"}', annotations=None, meta=None)]
-
-
-((venv) ) Mac:jim mcp_testlab[517]$ python mcp-sentiment/mcp_client_sse.py "this movie is terrible, a waste of money"
+Sentiment Analysis Result: [TextContent(type='text', text='{"polarity": 0.8, "subjectivity": 0.75, "assessment": "positive"}', annotations=None, meta=None)]
+((venv) ) Mac:jim mcp_testlab[510]$ python mcp-sentiment/mcp_client_sse.py "Java is not as good as Python"
 
 Connected to MCP server. Listing available tools...
 
 tools: ['sentiment_analysis']
 
-Sentiment Analysis Result: [TextContent(type='text', text='{"polarity": -0.6, "subjectivity": 0.5, "assessment": "negative"}', annotations=None, meta=None)]
-((venv) ) Mac:jim mcp_testlab[518]$ ```
-``` 
+Sentiment Analysis Result: [TextContent(type='text', text='{"polarity": 0.7, "subjectivity": 0.6, "assessment": "positive"}', annotations=None, meta=None)]
+((venv) ) Mac:jim mcp_testlab[511]$ python mcp-sentiment/mcp_client_sse.py "Java is hard to use"
+
+Connected to MCP server. Listing available tools...
+
+tools: ['sentiment_analysis']
+
+Sentiment Analysis Result: [TextContent(type='text', text='{"polarity": -0.29, "subjectivity": 0.54, "assessment": "negative"}', annotations=None, meta=None)]``` 
 
 **SSE Server**
 ```bash
-((venv) ) Mac:jim mcp_testlab[517]$ python mcp-sentiment/app_fastmcp.py --transport sse
-INFO:     Started server process [34093]
+((venv) ) Mac:jim mcp_testlab[506]$ python mcp-sentiment/app_fastmcp.py --transport sse
+INFO:     Started server process [8908]
 INFO:     Waiting for application startup.
 INFO:     Application startup complete.
 INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
-INFO:     127.0.0.1:50141 - "GET /sse HTTP/1.1" 200 OK
-INFO:     127.0.0.1:50143 - "POST /messages/?session_id=8a3facb39d544dca8acc9cd9af4893d9 HTTP/1.1" 202 Accepted
-INFO:     127.0.0.1:50143 - "POST /messages/?session_id=8a3facb39d544dca8acc9cd9af4893d9 HTTP/1.1" 202 Accepted
-INFO:     127.0.0.1:50143 - "POST /messages/?session_id=8a3facb39d544dca8acc9cd9af4893d9 HTTP/1.1" 202 Accepted
-[07/28/25 06:51:02] INFO     Processing request of type ListToolsRequest                                                                                                                                               server.py:619
-INFO:     127.0.0.1:50143 - "POST /messages/?session_id=8a3facb39d544dca8acc9cd9af4893d9 HTTP/1.1" 202 Accepted
-                    INFO     Processing request of type CallToolRequest                                                                                                                                                server.py:619
-INFO:     127.0.0.1:50146 - "GET /sse HTTP/1.1" 200 OK
-INFO:     127.0.0.1:50148 - "POST /messages/?session_id=68de3cfbb3b7440194c7884e42d85d3c HTTP/1.1" 202 Accepted
-INFO:     127.0.0.1:50148 - "POST /messages/?session_id=68de3cfbb3b7440194c7884e42d85d3c HTTP/1.1" 202 Accepted
-INFO:     127.0.0.1:50148 - "POST /messages/?session_id=68de3cfbb3b7440194c7884e42d85d3c HTTP/1.1" 202 Accepted
-[07/28/25 06:51:06] INFO     Processing request of type ListToolsRequest                                                                                                                                               server.py:619
-INFO:     127.0.0.1:50148 - "POST /messages/?session_id=68de3cfbb3b7440194c7884e42d85d3c HTTP/1.1" 202 Accepted
-                    INFO     Processing request of type CallToolRequest                                                                                                                                                server.py:619
-^CINFO:     Shutting down
+INFO:     127.0.0.1:49538 - "GET /sse HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49540 - "POST /messages/?session_id=fb1a89915f0b40e98f44385af5b6db58 HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:49540 - "POST /messages/?session_id=fb1a89915f0b40e98f44385af5b6db58 HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:49540 - "POST /messages/?session_id=fb1a89915f0b40e98f44385af5b6db58 HTTP/1.1" 202 Accepted
+[07/29/25 06:13:08] INFO     Processing request of type ListToolsRequest                                                                                                                           server.py:619
+INFO:     127.0.0.1:49540 - "POST /messages/?session_id=fb1a89915f0b40e98f44385af5b6db58 HTTP/1.1" 202 Accepted
+                    INFO     Processing request of type CallToolRequest                                                                                                                            server.py:619
+INFO:     127.0.0.1:49543 - "GET /sse HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49545 - "POST /messages/?session_id=632a380ef69344eab4bf145158e05051 HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:49545 - "POST /messages/?session_id=632a380ef69344eab4bf145158e05051 HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:49545 - "POST /messages/?session_id=632a380ef69344eab4bf145158e05051 HTTP/1.1" 202 Accepted
+[07/29/25 06:13:46] INFO     Processing request of type ListToolsRequest                                                                                                                           server.py:619
+INFO:     127.0.0.1:49545 - "POST /messages/?session_id=632a380ef69344eab4bf145158e05051 HTTP/1.1" 202 Accepted
+                    INFO     Processing request of type CallToolRequest                                                                                                                            server.py:619
+INFO:     127.0.0.1:49547 - "GET /sse HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49549 - "POST /messages/?session_id=f6a51e126c12412398bacc85753174a3 HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:49549 - "POST /messages/?session_id=f6a51e126c12412398bacc85753174a3 HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:49549 - "POST /messages/?session_id=f6a51e126c12412398bacc85753174a3 HTTP/1.1" 202 Accepted
+[07/29/25 06:14:17] INFO     Processing request of type ListToolsRequest                                                                                                                           server.py:619
+INFO:     127.0.0.1:49549 - "POST /messages/?session_id=f6a51e126c12412398bacc85753174a3 HTTP/1.1" 202 Accepted
+                    INFO     Processing request of type CallToolRequest                                                                                                                            server.py:619
+INFO:     Shutting down
 INFO:     Waiting for application shutdown.
 INFO:     Application shutdown complete.
-INFO:     Finished server process [34093]
-Traceback (most recent call last):
-  File "/opt/homebrew/Cellar/python@3.12/3.12.11/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/runners.py", line 118, in run
-    return self._loop.run_until_complete(task)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/opt/homebrew/Cellar/python@3.12/3.12.11/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/base_events.py", line 691, in run_until_complete
-    return future.result()
-           ^^^^^^^^^^^^^^^
-asyncio.exceptions.CancelledError
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "/Users/jim/Desktop/modelcontextprotocol/mcp_testlab/mcp-sentiment/app_fastmcp.py", line 52, in <module>
-    mcp.run(transport=args.transport)
-  File "/Users/jim/Desktop/modelcontextprotocol/mcp_testlab/venv/lib/python3.12/site-packages/mcp/server/fastmcp/server.py", line 228, in run
-    anyio.run(lambda: self.run_sse_async(mount_path))
-  File "/Users/jim/Desktop/modelcontextprotocol/mcp_testlab/venv/lib/python3.12/site-packages/anyio/_core/_eventloop.py", line 74, in run
-    return async_backend.run(func, args, {}, backend_options)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/Users/jim/Desktop/modelcontextprotocol/mcp_testlab/venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 2310, in run
-    return runner.run(wrapper())
-           ^^^^^^^^^^^^^^^^^^^^^
-  File "/opt/homebrew/Cellar/python@3.12/3.12.11/Frameworks/Python.framework/Versions/3.12/lib/python3.12/asyncio/runners.py", line 123, in run
-    raise KeyboardInterrupt()
-KeyboardInterrupt
+INFO:     Finished server process [8908]
+Terminated: 15             python mcp-sentiment/app_fastmcp.py --transport sse
 ```
 
 ### Example Usage with `streamable-http` Transport
