@@ -226,6 +226,7 @@ async def main() -> None:
     args = parse_arguments()
     results = await run_client(args.server, args.text, args.verbose)
     print(f"\nSentiment Analysis Result: {results}")
+    return results
 
 
 if __name__ == "__main__":
