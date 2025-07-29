@@ -81,7 +81,16 @@ When implementing new features, ensure they work with all transport types.
 
 ## Testing
 
-When adding new functionality:
-- Test with all three transport types
-- Test with positive and negative sentiment examples
-- Verify proper resource cleanup and error
+tests located in directory `tests/`. Follow these guidelines for writing tests:
+
+1. **Unit Tests**: 
+   - Write unit tests for all functions and classes
+   - Use pytest for testing framework
+   - Include tests for both positive and negative cases
+   - Mock external dependencies where necessary
+
+2. **Integration Tests**: 
+   - When adding new functionality:
+   - Test with all three transport types
+   - Test with positive and negative sentiment examples
+   - Verify proper resource cleanup and error handling
