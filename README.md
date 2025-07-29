@@ -10,45 +10,12 @@ This project demonstrates sentiment analysis using the Model Context Protocol (M
 - `mcp-sentiment/mcp_client_sse.py`: MCP client that connects to the server and requests sentiment analysis via SSE transport.
 - `mcp-sentiment/mcp_client_streamable.py`: MCP client that connects to the server and requests sentiment analysis via streamable-http transport.
 
-## Usage
-
-To run sentiment analysis from the command line using stdio transport:
-
-```bash
-python mcp-sentiment/mcp_client_stdio.py "Your text to test sentiment"
-```
-
-To run sentiment analysis from the command line using SSE transport:
-
-```bash
-python mcp-sentiment/mcp_client_sse.py "Your text to test sentiment"
-```
-
-You can also specify the URL for the SSE endpoint:
-
-```bash
-python mcp-sentiment/mcp_client_sse.py "Your text to test sentiment" --url "http://localhost:8000/sse"
-```
-
-To run sentiment analysis from the command line using streamable-http transport:
-
-```bash
-python mcp-sentiment/mcp_client_streamable.py "Your text to test sentiment"
-```
-
-You can also specify the URL for the streamable-http endpoint:
-
-```bash
-python mcp-sentiment/mcp_client_streamable.py "Your text to test sentiment" --url "http://localhost:8000/mcp"
-```
-
-If no text is provided, the program will exit with an error message.
 
 ## How It Works
 
 The application uses Model Context Protocol (MCP) to facilitate communication between a client and a sentiment analysis server. When you run the client with a text string, it:
 
-1. Connects to the server script (`app_fastmcp.py`) or SSE endpoint
+1. Connects to the server script (`app_fastmcp.py`) or `sse`/`streamable-http` endpoint
 2. Sends your text for sentiment analysis
 3. Returns the sentiment result (positive, negative, or neutral)
 
@@ -66,79 +33,142 @@ The `app_fastmcp.py` file implements an MCP server using FastMCP that:
 ### Client (mcp_client_stdio.py)
 
 The `mcp_client_stdio.py` file implements an MCP client that:
-- Accepts text input from the command line
+- Uses the argparse library for command-line argument handling
+- Accepts text input as a required positional argument
+- Accepts an optional `--server` parameter to specify the server script path
+- Accepts an optional `--verbose` flag to display detailed tool information
 - Establishes a connection to the MCP server using stdio transport
 - Lists available tools on the connected server
 - Sends the input text to the sentiment_analysis tool
-- Receives and displays the JSON response with sentiment results
-- Properly manages resources with async context managers
+- Displays formatted sentiment results showing polarity, subjectivity, and assessment
+- Properly manages resources with async context managers and AsyncExitStack
 
 ### Client (mcp_client_sse.py)
 
 The `mcp_client_sse.py` file implements an MCP client that:
 - Uses the argparse library for command-line argument handling
 - Accepts text input as a required positional argument
-- Accepts an optional `--url` parameter to specify the server endpoint
+- Accepts an optional `--url` parameter to specify the server endpoint (default: http://localhost:8000/sse)
+- Accepts an optional `--verbose` flag to display detailed tool information
 - Establishes a connection to the MCP server using SSE transport
 - Lists available tools on the connected server
 - Sends the input text to the sentiment_analysis tool
-- Receives and displays the JSON response with sentiment results
-- Properly manages resources with async context managers
+- Displays formatted sentiment results showing polarity, subjectivity, and assessment
+- Properly manages resources with async context managers and AsyncExitStack
 
 ### Client (mcp_client_streamable.py)
 
 The `mcp_client_streamable.py` file implements an MCP client that:
 - Uses the argparse library for command-line argument handling
 - Accepts text input as a required positional argument
-- Accepts an optional `--url` parameter to specify the server endpoint
+- Accepts an optional `--url` parameter to specify the server endpoint (default: http://localhost:8000/mcp)
+- Accepts an optional `--verbose` flag to display detailed tool information
 - Establishes a connection to the MCP server using streamable-http transport
 - Displays the session ID when available
 - Lists available tools on the connected server
 - Sends the input text to the sentiment_analysis tool
-- Receives and displays the JSON response with sentiment results
-- Properly manages resources with async context managers
+- Displays formatted sentiment results showing polarity, subjectivity, and assessment
+- Properly manages resources with async context managers and AsyncExitStack
 
 ### Example Usage with `stdio` Transport
 
+**Command-line Arguments**
 ```bash
-((venv) ) Mac:jim mcp_testlab[520]$ python mcp-sentiment/mcp_client_stdio.py "I love python"
+((venv) ) Mac:jim mcp_testlab[529]$ python mcp-sentiment/mcp_client_stdio.py --help
+usage: mcp_client_stdio.py [-h] [--server SERVER] [--verbose] text
+
+MCP Client for sentiment analysis using stdio transport
+
+positional arguments:
+  text             Text to analyze for sentiment
+
+options:
+  -h, --help       show this help message and exit
+  --server SERVER  Path to the MCP server script (default: mcp-sentiment/app_fastmcp.py)
+  --verbose, -v    Display detailed information about available tools
+
+
+**Client**
+```bash
+((venv) ) Mac:jim mcp_testlab[530]$ python mcp-sentiment/mcp_client_stdio.py "I love mcp"
+
+Connected to MCP server at mcp-sentiment/app_fastmcp.py
+Listing available tools...
+[07/29/25 08:38:26] INFO     Processing request of type ListToolsRequest                                                                                                                                        server.py:619
 
 Connected to MCP server. Listing available tools...
-[07/27/25 23:34:42] INFO     Processing request of type ListToolsRequest                                                                                                                       server.py:619
+                    INFO     Processing request of type ListToolsRequest                                                                                                                                        server.py:619
 
-tools: ['sentiment_analysis']
-                    INFO     Processing request of type CallToolRequest                                                                                                                        server.py:619
+Available tools: ['sentiment_analysis']
 
-Sentiment Analysis Result: [TextContent(type='text', text='{"polarity": 0.5, "subjectivity": 0.6, "assessment": "positive"}', annotations=None, meta=None)]
+Analyzing sentiment for: 'I love mcp'
+                    INFO     Processing request of type CallToolRequest                                                                                                                                         server.py:619
+
+Sentiment Analysis Result:
+  Polarity: N/A (-1=negative, 1=positive)
+  Subjectivity: N/A (0=objective, 1=subjective)
+  Assessment: N/A
 
 
-((venv) ) Mac:jim mcp_testlab[523]$ python mcp-sentiment/mcp_client_stdio.py "I hate python"
+((venv) ) Mac:jim mcp_testlab[531]$ python mcp-sentiment/mcp_client_stdio.py "I love mcp" -v
+
+Connected to MCP server at mcp-sentiment/app_fastmcp.py
+Listing available tools...
+[07/29/25 08:38:57] INFO     Processing request of type ListToolsRequest                                                                                                                                        server.py:619
 
 Connected to MCP server. Listing available tools...
-[07/27/25 23:36:35] INFO     Processing request of type ListToolsRequest                                                                                                                       server.py:619
+                    INFO     Processing request of type ListToolsRequest                                                                                                                                        server.py:619
 
-tools: ['sentiment_analysis']
-                    INFO     Processing request of type CallToolRequest                                                                                                                        server.py:619
+sentiment_analysis:
+  Description: 
+    Analyze the sentiment of the given text.
 
-Sentiment Analysis Result: [TextContent(type='text', text='{"polarity": -0.8, "subjectivity": 0.9, "assessment": "negative"}', annotations=None, meta=None)]
-((venv) ) Mac:jim mcp_testlab[524]$ 
+    Args:
+        text (str): The text to analyze
+
+    Returns:
+        str: A JSON string containing polarity, subjectivity, and assessment
+    
+  Annotations: None
+  Inputschema: {'properties': {'text': {'title': 'Text', 'type': 'string'}}, 'required': ['text'], 'title': 'sentiment_analysisArguments', 'type': 'object'}
+  Meta: None
+/Users/jim/Desktop/modelcontextprotocol/mcp_testlab/mcp-sentiment/mcp_client_stdio.py:153: PydanticDeprecatedSince211: Accessing the 'model_computed_fields' attribute on the instance is deprecated. Instead, you should access this attribute from the model class. Deprecated in Pydantic V2.11 to be removed in V3.0.
+  value = getattr(tool, attr)
+  Model_computed_fields: {}
+  Model_config: {'extra': 'allow'}
+  Model_extra: {}
+/Users/jim/Desktop/modelcontextprotocol/mcp_testlab/mcp-sentiment/mcp_client_stdio.py:153: PydanticDeprecatedSince211: Accessing the 'model_fields' attribute on the instance is deprecated. Instead, you should access this attribute from the model class. Deprecated in Pydantic V2.11 to be removed in V3.0.
+  value = getattr(tool, attr)
+  Model_fields: {'name': FieldInfo(annotation=str, required=True), 'title': FieldInfo(annotation=Union[str, NoneType], required=False, default=None), 'description': FieldInfo(annotation=Union[str, NoneType], required=False, default=None), 'inputSchema': FieldInfo(annotation=dict[str, Any], required=True), 'outputSchema': FieldInfo(annotation=Union[dict[str, Any], NoneType], required=False, default=None), 'annotations': FieldInfo(annotation=Union[ToolAnnotations, NoneType], required=False, default=None), 'meta': FieldInfo(annotation=Union[dict[str, Any], NoneType], required=False, default=None, alias='_meta', alias_priority=2)}
+  Model_fields_set: {'description', 'name', 'inputSchema', 'outputSchema'}
+  Outputschema: {'properties': {'result': {'title': 'Result', 'type': 'string'}}, 'required': ['result'], 'title': 'sentiment_analysisOutput', 'type': 'object'}
+  Title: None
+
+Analyzing sentiment for: 'I love mcp'
+                    INFO     Processing request of type CallToolRequest                                                                                                                                         server.py:619
+
+Sentiment Analysis Result:
+  Polarity: N/A (-1=negative, 1=positive)
+  Subjectivity: N/A (0=objective, 1=subjective)
+  Assessment: N/A
 ```
 
 ### Example Usage with `sse` Transport
 
 **Command-line Arguments**
 ```bash
-((venv) ) Mac:jim mcp_testlab[509]$ python mcp-sentiment/mcp_client_sse.py --help
-usage: mcp_client_sse.py [-h] [--url URL] text_to_test
+((venv) ) Mac:jim mcp_testlab[532]$ python mcp-sentiment/mcp_client_sse.py --help
+usage: mcp_client_sse.py [-h] [--url URL] [--verbose] text_to_test
 
 MCP SSE Client for Sentiment Analysis
 
 positional arguments:
-  text_to_test  Text to analyze for sentiment
+  text_to_test   Text to analyze for sentiment
 
 options:
-  -h, --help    show this help message and exit
-  --url URL     URL of the SSE server endpoint (default: http://localhost:8000/sse)
+  -h, --help     show this help message and exit
+  --url URL      URL of the SSE server endpoint (default: http://localhost:8000/sse)
+  --verbose, -v  Display detailed information about available tools
 ```
 
 **Client**
@@ -205,17 +235,18 @@ Terminated: 15             python mcp-sentiment/app_fastmcp.py --transport sse
 
 **Command-line Arguments**
 ```bash
-((venv) ) Mac:jim mcp_testlab[505]$ python mcp-sentiment/mcp_client_streamable.py --help
-usage: mcp_client_streamable.py [-h] [--url URL] text_to_test
+((venv) ) Mac:jim mcp_testlab[533]$ python mcp-sentiment/mcp_client_streamable.py --help
+usage: mcp_client_streamable.py [-h] [--url URL] [--verbose] text_to_test
 
 MCP Streamable Client for Sentiment Analysis
 
 positional arguments:
-  text_to_test  Text to analyze for sentiment
+  text_to_test   Text to analyze for sentiment
 
 options:
-  -h, --help    show this help message and exit
-  --url URL     URL of the streamable-http server endpoint (default: http://localhost:8000/mcp)
+  -h, --help     show this help message and exit
+  --url URL      URL of the streamable-http server endpoint (default: http://localhost:8000/mcp)
+  --verbose, -v  Display detailed information about available tools
 ```
 
 **Client**
