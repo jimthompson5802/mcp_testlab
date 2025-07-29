@@ -1,5 +1,6 @@
 import asyncio
 import argparse
+import json
 from typing import Optional, List, Any
 from contextlib import AsyncExitStack
 
@@ -95,12 +96,23 @@ class MCPClient:
                 "sentiment_analysis", {"text": text}
             )
 
-            # Return the result content
-            return response.content
-        except ValueError as e:
-            raise ValueError(f"Invalid input for sentiment analysis: {e}")
+            # Parse the JSON result into a dictionary
+            content = response.content
+
+            # Handle different content types
+            if isinstance(content, str):
+                return json.loads(content)
+            elif isinstance(content, list):
+                # Concatenate list items if it's a list of content blocks
+                joined_content = "".join(str(item) for item in content)
+                try:
+                    return json.loads(joined_content)
+                except json.JSONDecodeError:
+                    return {"raw_content": joined_content}
+            else:
+                return {"raw_content": str(content)}
         except Exception as e:
-            raise RuntimeError(f"Error calling sentiment_analysis tool: {e}")
+            return f"Error calling sentiment_analysis tool: {e}"
 
     async def cleanup(self) -> None:
         """Clean up resources and close connections."""
@@ -108,7 +120,7 @@ class MCPClient:
             await self.exit_stack.aclose()
 
 
-async def run_client(server_script: str, text: str) -> None:
+async def run_client(server_script: str, text: str, verbose: bool) -> None:
     """Run the MCP client with the specified server and text.
 
     Args:
@@ -123,13 +135,46 @@ async def run_client(server_script: str, text: str) -> None:
         print("Listing available tools...")
 
         tools = await client.list_tools()
-        print("\nAvailable tools:", [tool.name for tool in tools])
+        print("\nConnected to MCP server. Listing available tools...")
+        try:
+            tools = await client.list_tools()
+            if verbose:
+                # Display detailed information about each tool
+                for tool in tools:
+                    print(f"\n{tool.name}:")
+                    print(f"  Description: {tool.description}")
+                    # Display any other available attributes
+                    for attr in dir(tool):
+                        if not attr.startswith("_") and attr not in (
+                            "name",
+                            "description",
+                        ):
+                            try:
+                                value = getattr(tool, attr)
+                                if not callable(value):
+                                    print(f"  {attr.capitalize()}: {value}")
+                            except Exception:
+                                pass
+            else:
+                # Just display the tool names
+                print("\nAvailable tools:", [tool.name for tool in tools])
 
-        print(f"\nAnalyzing sentiment for: '{text}'")
-        response = await client.mcp_request(text)
-        print("\nSentiment Analysis Result:", response)
-    except Exception as e:
-        print(f"Error: {e}")
+            print(f"\nAnalyzing sentiment for: '{text}'")
+            response = await client.mcp_request(text)
+
+            if isinstance(response, dict):
+                print("\nSentiment Analysis Result:")
+                print(
+                    f"  Polarity: {response.get('polarity', 'N/A')} (-1=negative, 1=positive)"
+                )
+                print(
+                    f"  Subjectivity: {response.get('subjectivity', 'N/A')} (0=objective, 1=subjective)"
+                )
+                print(f"  Assessment: {response.get('assessment', 'N/A')}")
+            else:
+                print(f"\nError: {response}")
+        except RuntimeError as e:
+            print(f"Error: {e}")
     finally:
         await client.cleanup()
 
@@ -149,13 +194,20 @@ def parse_arguments() -> argparse.Namespace:
         default="mcp-sentiment/app_fastmcp.py",
         help="Path to the MCP server script (default: mcp-sentiment/app_fastmcp.py)",
     )
+    parser.add_argument(
+        "--verbose",
+        "-v",
+        action="store_true",
+        help="Display detailed information about available tools",
+    )
+
     return parser.parse_args()
 
 
 async def main() -> None:
     """Main entry point for the MCP stdio client."""
     args = parse_arguments()
-    await run_client(args.server, args.text)
+    await run_client(args.server, args.text, args.verbose)
 
 
 if __name__ == "__main__":
