@@ -1,7 +1,7 @@
 import asyncio
 import argparse
 import json
-from typing import Optional, List, Dict, Any, Union
+from typing import Optional, List, Dict, Any, Union, Callable
 from contextlib import AsyncExitStack
 
 from mcp import ClientSession
@@ -9,17 +9,37 @@ from mcp.client.streamable_http import streamablehttp_client
 
 
 class MCPClient:
+    """Client for interacting with an MCP server using streamable-http transport.
+
+    This class provides methods to connect to an MCP server, list available tools,
+    and make sentiment analysis requests using the Model Context Protocol.
+    """
 
     def __init__(self):
+        """Initialize the MCP client with required resources.
+
+        Sets up the session and AsyncExitStack for resource management.
+        """
         # Initialize session and client objects
         self.session: Optional[ClientSession] = None
-        self.exit_stack = AsyncExitStack()
+        self.exit_stack: AsyncExitStack = AsyncExitStack()
+        self.streamable: Any = None
+        self.write: Any = None
+        self.get_session_id: Optional[Callable[[], Optional[str]]] = None
 
-    async def connect_to_server(self, server_url: str):
-        """Connect to an MCP server using streamable-http transport
+    async def connect_to_server(self, server_url: str) -> None:
+        """Connect to an MCP server using streamable-http transport.
+
+        Sets up the streamable HTTP transport and initializes the client session.
 
         Args:
             server_url: URL of the streamable-http server endpoint
+
+        Returns:
+            None
+
+        Raises:
+            ConnectionError: If connection to the server fails
         """
 
         streamable_transport = await self.exit_stack.enter_async_context(
@@ -37,8 +57,19 @@ class MCPClient:
             if session_id:
                 print(f"Session ID: {session_id}")
 
-    async def list_tools(self):
-        """List available tools on the MCP server"""
+    async def list_tools(self) -> List[Any]:
+        """List available tools on the MCP server.
+
+        Retrieves the list of tools available on the connected MCP server.
+
+        Returns:
+            List of tool objects provided by the MCP server
+
+        Raises:
+            RuntimeError: If the client is not connected to a server
+        """
+        if not self.session:
+            raise RuntimeError("Not connected to an MCP server")
 
         # List available tools
         response = await self.session.list_tools()
@@ -88,12 +119,26 @@ class MCPClient:
         except Exception as e:
             return f"Error calling sentiment_analysis tool: {e}"
 
-    async def cleanup(self):
-        """Clean up resources"""
+    async def cleanup(self) -> None:
+        """Clean up resources.
+
+        Closes all resources managed by the AsyncExitStack.
+
+        Returns:
+            None
+        """
         await self.exit_stack.aclose()
 
 
-async def main():
+async def main() -> None:
+    """Main entry point for the MCP Streamable client application.
+
+    Parses command-line arguments, connects to the MCP server,
+    lists available tools, and performs sentiment analysis on the provided text.
+
+    Returns:
+        None
+    """
     # Set up argument parsing
     parser = argparse.ArgumentParser(
         description="MCP Streamable Client for Sentiment Analysis"
