@@ -1,8 +1,9 @@
 import asyncio
 import argparse
 import json
-from typing import Optional, List, Any
+from typing import Optional, List, Any, Tuple
 from contextlib import AsyncExitStack
+import re
 
 from mcp import ClientSession, StdioServerParameters, Tool
 from mcp.client.stdio import stdio_client
@@ -120,7 +121,7 @@ class MCPClient:
             await self.exit_stack.aclose()
 
 
-async def run_client(server_script: str, text: str, verbose: bool) -> None:
+async def run_client(server_script: str, text: str, verbose: bool) -> Tuple:
     """Run the MCP client with the specified server and text.
 
     Args:
@@ -162,21 +163,37 @@ async def run_client(server_script: str, text: str, verbose: bool) -> None:
             print(f"\nAnalyzing sentiment for: '{text}'")
             response = await client.mcp_request(text)
 
-            if isinstance(response, dict):
+            # Parse the JSON result into a dictionary
+            s = response.get("raw_content", response)
+
+            match = re.search(r"text='([^']+)'", s)
+            if match:
+                json_str = match.group(1)
+                data = json.loads(json_str)
+                print(data)
+            else:
+                raise RuntimeError("Failed to parse sentiment analysis response")
+
+            if isinstance(data, dict):
                 print("\nSentiment Analysis Result:")
                 print(
-                    f"  Polarity: {response.get('polarity', 'N/A')} (-1=negative, 1=positive)"
+                    f"  Polarity: {data.get('polarity', 'N/A')} (-1=negative, 1=positive)"
                 )
                 print(
-                    f"  Subjectivity: {response.get('subjectivity', 'N/A')} (0=objective, 1=subjective)"
+                    f"  Subjectivity: {data.get('subjectivity', 'N/A')} (0=objective, 1=subjective)"
                 )
-                print(f"  Assessment: {response.get('assessment', 'N/A')}")
+                print(f"  Assessment: {data.get('assessment', 'N/A')}")
+                polarity = data.get("polarity", "N/A")
+                subjectivity = data.get("subjectivity", "N/A")
+                assessment = data.get("assessment", "unknown")
             else:
                 print(f"\nError: {response}")
         except RuntimeError as e:
             print(f"Error: {e}")
     finally:
         await client.cleanup()
+
+    return polarity, subjectivity, assessment
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -207,7 +224,8 @@ def parse_arguments() -> argparse.Namespace:
 async def main() -> None:
     """Main entry point for the MCP stdio client."""
     args = parse_arguments()
-    await run_client(args.server, args.text, args.verbose)
+    results = await run_client(args.server, args.text, args.verbose)
+    print(f"\nSentiment Analysis Result: {results}")
 
 
 if __name__ == "__main__":

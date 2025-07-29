@@ -101,21 +101,7 @@ class MCPClient:
                 "sentiment_analysis", {"text": text}
             )
 
-            # Parse the JSON result into a dictionary
-            content = response.content
-
-            # Handle different content types
-            if isinstance(content, str):
-                return json.loads(content)
-            elif isinstance(content, list):
-                # Concatenate list items if it's a list of content blocks
-                joined_content = "".join(str(item) for item in content)
-                try:
-                    return json.loads(joined_content)
-                except json.JSONDecodeError:
-                    return {"raw_content": joined_content}
-            else:
-                return {"raw_content": str(content)}
+            return json.loads(response.structuredContent.get("result", "{}"))
         except Exception as e:
             return f"Error calling sentiment_analysis tool: {e}"
 

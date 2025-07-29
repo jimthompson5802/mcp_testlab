@@ -64,20 +64,21 @@ class MCPClient:
         return tools
 
     async def mcp_request(self, text: str) -> Union[Dict[str, Any], str]:
-        """Use MCP client to call sentiment analysis tool.
+        """Send a sentiment analysis request to the MCP server.
 
-        This method sends the provided text to the server for sentiment analysis
-        and returns the parsed result.
+        This method sends the provided text to the sentiment_analysis tool on the
+        connected MCP server and returns the parsed sentiment analysis result.
 
         Args:
-            text: The text to analyze for sentiment
+            text (str): The text to analyze for sentiment.
 
         Returns:
-            The sentiment analysis result as a dictionary containing polarity,
-            subjectivity, and assessment values, or an error message as string
+            Dict[str, Any]: The sentiment analysis result as a dictionary containing
+                polarity, subjectivity, and assessment values.
+            str: An error message if the request fails.
 
         Raises:
-            RuntimeError: If the client is not connected to a server
+            RuntimeError: If the client is not connected to a server.
         """
         if not self.session:
             raise RuntimeError("Not connected to an MCP server")
@@ -88,21 +89,7 @@ class MCPClient:
                 "sentiment_analysis", {"text": text}
             )
 
-            # Parse the JSON result into a dictionary
-            content = response.content
-
-            # Handle different content types
-            if isinstance(content, str):
-                return json.loads(content)
-            elif isinstance(content, list):
-                # Concatenate list items if it's a list of content blocks
-                joined_content = "".join(str(item) for item in content)
-                try:
-                    return json.loads(joined_content)
-                except json.JSONDecodeError:
-                    return {"raw_content": joined_content}
-            else:
-                return {"raw_content": str(content)}
+            return json.loads(response.structuredContent.get("result", "{}"))
         except Exception as e:
             return f"Error calling sentiment_analysis tool: {e}"
 
