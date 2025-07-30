@@ -3,12 +3,58 @@
 This project demonstrates sentiment analysis using the Model Context Protocol (MCP) and is based on the [Hugging Face MCP Course](https://huggingface.co/learn/mcp-course/unit2/introduction). Instead of using the `gradio` library in the HuggingFace course, this project utilizes the `fastmcp` library to implement an MCP server and client.
 
 
-## Folder Structure
+## Main Components
 
-- `mcp-sentiment/app_fastmcp.py`: MCP server script for sentiment analysis.
-- `mcp-sentiment/mcp_client_stdio.py`: MCP client that connects to the server and requests sentiment analysis via command line.
-- `mcp-sentiment/mcp_client_sse.py`: MCP client that connects to the server and requests sentiment analysis via SSE transport.
-- `mcp-sentiment/mcp_client_streamable.py`: MCP client that connects to the server and requests sentiment analysis via streamable-http transport.
+### Directory Structure
+```plaintext
+mcp_testlab/
+├── mcp-sentiment/
+│   ├── app_fastmcp.py                # MCP server exposing sentiment_analysis tool
+│   ├── mcp_client_stdio.py           # MCP client (stdio transport)
+│   ├── mcp_client_sse.py             # MCP client (SSE transport)
+│   └── mcp_client_streamable.py      # MCP client (streamable-http transport)
+├── tests/
+│   ├── test_sentiment_analysis.py    # Unit tests for sentiment_analysis tool
+│   ├── test_client_stdio.py          # Tests for stdio client
+│   ├── test_client_sse.py            # Tests for SSE client
+│   └── test_client_streamable.py     # Tests for streamable-http client
+├── requirements.txt                  # Python dependencies
+├── README.md                         # Project documentation and usage
+├── LICENSE                           # License file
+├── .gitignore                        # Git ignore rules
+└── .gitattributes                    # Git LFS attributes
+```
+
+
+### Server
+
+- **mcp-sentiment/app_fastmcp.py**  
+  Implements the MCP server using FastMCP. Exposes a `sentiment_analysis` tool that uses TextBlob to analyze the sentiment of input text and returns polarity, subjectivity, and an overall assessment as JSON.
+
+### Clients
+
+- **mcp-sentiment/mcp_client_stdio.py**  
+  MCP client using stdio transport. Connects to the server via subprocess, lists available tools, and sends text for sentiment analysis. Uses argparse for CLI.
+
+- **mcp-sentiment/mcp_client_sse.py**  
+  MCP client using Server-Sent Events (SSE) transport. Connects to the server via HTTP SSE endpoint, lists tools, and sends text for analysis. Uses argparse for CLI.
+
+- **mcp-sentiment/mcp_client_streamable.py**  
+  MCP client using streamable-http transport. Connects to the server via HTTP with bidirectional streaming, lists tools, and sends text for analysis. Uses argparse for CLI.
+
+### Tests
+
+- **tests/test_sentiment_analysis.py**  
+  Unit tests for the sentiment analysis tool, checking various input cases and error handling.
+
+- **tests/test_client_stdio.py**  
+  Tests for the stdio client, including unit tests for request handling and integration tests for end-to-end sentiment analysis.
+
+- **tests/test_client_sse.py**  
+  Integration tests for the SSE client, including server process management and sentiment analysis checks.
+
+- **tests/test_client_streamable.py**  
+  Integration tests for the streamable-http client, including server process management and sentiment analysis checks.
 
 
 ## How It Works
