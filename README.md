@@ -322,37 +322,12 @@ Terminated: 15             python mcp-sentiment/app_fastmcp.py --transport strea
 ## Unit Tests
 Unit tests are provided to ensure the functionality of the MCP server and client. To run the tests, use the following command:
 ```bash
-
 $ pytest -v tests
-=========================================== test session starts ===========================================
-platform darwin -- Python 3.12.11, pytest-8.4.1, pluggy-1.6.0 -- /Users/jim/Desktop/modelcontextprotocol/mcp_testlab/venv/bin/python3.12
-cachedir: .pytest_cache
-rootdir: /Users/jim/Desktop/modelcontextprotocol/mcp_testlab
-plugins: anyio-4.9.0, asyncio-1.1.0
-asyncio: mode=Mode.STRICT, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
-collected 18 items                                                                                        
-
-tests/test_client_sse.py::test_program_is_running PASSED                                            [  5%]
-tests/test_client_stdio.py::TestMCPClient::test_mcp_request_success_json PASSED                     [ 11%]
-tests/test_client_stdio.py::TestMCPClient::test_mcp_request_success_list PASSED                     [ 16%]
-tests/test_client_stdio.py::TestMCPClient::test_mcp_request_list_non_json PASSED                    [ 22%]
-tests/test_client_stdio.py::TestMCPClient::test_mcp_request_call_tool_exception PASSED              [ 27%]
-tests/test_client_stdio.py::TestMCPClient::test_mcp_request_invalid_text PASSED                     [ 33%]
-tests/test_client_stdio.py::TestMCPClient::test_mcp_request_not_connected PASSED                    [ 38%]
-tests/test_client_stdio.py::test_stdio_client_full_run PASSED                                       [ 44%]
-tests/test_sentiment_analysis.py::test_sentiment_analysis_assessment[I love this product. It's fantastic!-positive] PASSED [ 50%]
-tests/test_sentiment_analysis.py::test_sentiment_analysis_assessment[This is the worst experience I've ever had.-negative] PASSED [ 55%]
-tests/test_sentiment_analysis.py::test_sentiment_analysis_assessment[The product is okay. Nothing special.-positive] PASSED [ 61%]
-tests/test_sentiment_analysis.py::test_sentiment_analysis_assessment[-neutral0] PASSED              [ 66%]
-tests/test_sentiment_analysis.py::test_sentiment_analysis_assessment[I like the design, but the performance is terrible.-negative] PASSED [ 72%]
-tests/test_sentiment_analysis.py::test_sentiment_analysis_assessment[I have mixed feelings about this.-neutral] PASSED [ 77%]
-tests/test_sentiment_analysis.py::test_sentiment_analysis_assessment[-neutral1] PASSED              [ 83%]
-tests/test_sentiment_analysis.py::test_sentiment_analysis_assessment[12345-neutral] PASSED          [ 88%]
-tests/test_sentiment_analysis.py::test_sentiment_analysis_assessment[@#$%^&*()-neutral] PASSED      [ 94%]
-tests/test_sentiment_analysis.py::test_sentiment_analysis_error_handling PASSED                     [100%]
-
-=========================================== 18 passed in 1.67s ============================================
 ```
+
+Sample output:
+
+![](./images/mcp_unit_tests.png)
 
 ## MCP Inspector
 
