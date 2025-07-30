@@ -1,7 +1,7 @@
 import asyncio
 import argparse
 import json
-from typing import Optional, List, Dict, Any, Union
+from typing import Optional, List, Dict, Any, Union, Tuple
 from contextlib import AsyncExitStack
 
 from mcp import ClientSession, Tool
@@ -102,11 +102,18 @@ class MCPClient:
         await self.exit_stack.aclose()
 
 
-async def main() -> None:
-    """Run the MCP SSE client for sentiment analysis.
+async def main() -> tuple[Any | None, Any | None, Any | None]:
+    """Main entry point for the MCP SSE client.
 
-    This function parses command-line arguments, connects to an MCP server,
-    lists available tools, and runs sentiment analysis on the provided text.
+    Parses command-line arguments, connects to the MCP server using SSE transport,
+    lists available tools, and performs sentiment analysis on the provided text.
+
+    Args:
+        None
+
+    Returns:
+        tuple: A tuple containing the polarity, subjectivity, and assessment values from the sentiment analysis,
+            or None for each if unavailable.
     """
     # Set up argument parsing
     parser = argparse.ArgumentParser(
@@ -130,6 +137,7 @@ async def main() -> None:
     args = parser.parse_args()
 
     client = MCPClient()
+    polarity, subjectivity, assessment = None, None, None
     try:
         print(f"Connecting to MCP server at {args.url}...")
         try:
@@ -174,12 +182,17 @@ async def main() -> None:
                     f"  Subjectivity: {response.get('subjectivity', 'N/A')} (0=objective, 1=subjective)"
                 )
                 print(f"  Assessment: {response.get('assessment', 'N/A')}")
+                polarity = response.get("polarity")
+                subjectivity = response.get("subjectivity")
+                assessment = response.get("assessment")
             else:
                 print(f"\nError: {response}")
         except RuntimeError as e:
             print(f"Error: {e}")
     finally:
         await client.cleanup()
+
+    return polarity, subjectivity, assessment
 
 
 if __name__ == "__main__":

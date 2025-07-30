@@ -116,14 +116,18 @@ class MCPClient:
         await self.exit_stack.aclose()
 
 
-async def main() -> None:
+async def main() -> tuple[Any | None, Any | None, Any | None]:
     """Main entry point for the MCP Streamable client application.
 
-    Parses command-line arguments, connects to the MCP server,
+    Parses command-line arguments, connects to the MCP server using streamable-http transport,
     lists available tools, and performs sentiment analysis on the provided text.
 
-    Returns:
+    Args:
         None
+
+    Returns:
+        tuple: A tuple containing polarity, subjectivity, and assessment from the sentiment analysis result,
+            or None for each if unavailable.
     """
     # Set up argument parsing
     parser = argparse.ArgumentParser(
@@ -147,6 +151,7 @@ async def main() -> None:
     args = parser.parse_args()
 
     client = MCPClient()
+    polarity, subjectivity, assessment = None, None, None
     try:
         print(f"Connecting to MCP server at {args.url}...")
         try:
@@ -191,12 +196,17 @@ async def main() -> None:
                     f"  Subjectivity: {response.get('subjectivity', 'N/A')} (0=objective, 1=subjective)"
                 )
                 print(f"  Assessment: {response.get('assessment', 'N/A')}")
+                polarity = response.get("polarity")
+                subjectivity = response.get("subjectivity")
+                assessment = response.get("assessment")
             else:
                 print(f"\nError: {response}")
         except RuntimeError as e:
             print(f"Error: {e}")
     finally:
         await client.cleanup()
+
+    return polarity, subjectivity, assessment
 
 
 if __name__ == "__main__":

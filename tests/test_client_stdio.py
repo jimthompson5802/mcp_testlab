@@ -111,12 +111,15 @@ class TestMCPClient:
             await client.mcp_request("test")
 
 
+@pytest.mark.parametrize(
+    "text, sentiment", [("I hate MCP!", "negative"), ("I love MCP!", "positive")]
+)
 @pytest.mark.asyncio
-async def test_stdio_client_full_run(monkeypatch):
-    test_args = ["prog", "I love MCP!"]
+async def test_client_full_run(monkeypatch, text, sentiment):
+    test_args = ["prog", text]
     monkeypatch.setattr(sys, "argv", test_args)
 
     results = await stdio_main()
 
     assert len(results) == 3
-    assert results[2] == "positive"
+    assert results[2] == sentiment
