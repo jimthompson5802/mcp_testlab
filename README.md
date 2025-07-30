@@ -5,26 +5,31 @@ This project demonstrates sentiment analysis using the Model Context Protocol (M
 
 ## Main Components
 
-### Directory Structure
-```plaintext
-mcp_testlab/
-├── mcp-sentiment/
-│   ├── app_fastmcp.py                # MCP server exposing sentiment_analysis tool
-│   ├── mcp_client_stdio.py           # MCP client (stdio transport)
-│   ├── mcp_client_sse.py             # MCP client (SSE transport)
-│   └── mcp_client_streamable.py      # MCP client (streamable-http transport)
-├── tests/
-│   ├── test_sentiment_analysis.py    # Unit tests for sentiment_analysis tool
-│   ├── test_client_stdio.py          # Tests for stdio client
-│   ├── test_client_sse.py            # Tests for SSE client
-│   └── test_client_streamable.py     # Tests for streamable-http client
-├── requirements.txt                  # Python dependencies
-├── README.md                         # Project documentation and usage
-├── LICENSE                           # License file
-├── .gitignore                        # Git ignore rules
-└── .gitattributes                    # Git LFS attributes
+### Architecture Diagram
+```
++-------------------+                   +-------------------+
+|                   |                   |                   |
+|  mcp_client_stdio |<----------------->|                   |
+|                   |      stdio        |                   |
++-------------------+                   |                   |
+                                        |                   |
++-------------------+                   |                   |
+|                   |<----------------->|                   |
+|  mcp_client_sse   |-----/sse--------->|   MCP Server      |
+|                   |                   | (app_fastmcp.py)  |
++-------------------+                   |                   |
+                                        |                   |
++-------------------+                   |                   |
+|                   |<----------------->|                   |
+| mcp_client_stream-|----/mcp---------->|                   |
+|    able.py        |                   |                   |
++-------------------+                   +-------------------+
 ```
 
+Each client module communicates with the MCP server using a different transport protocol:
+- `mcp_client_stdio.py` uses stdio
+- `mcp_client_sse.py` uses SSE (Server-Sent Events) at `/sse`
+- `mcp_client_streamable.py` uses streamable-http at `/mcp`
 
 ### Server
 
@@ -55,6 +60,26 @@ mcp_testlab/
 
 - **tests/test_client_streamable.py**  
   Integration tests for the streamable-http client, including server process management and sentiment analysis checks.
+
+### Directory Structure
+```plaintext
+mcp_testlab/
+├── mcp-sentiment/
+│   ├── app_fastmcp.py                # MCP server exposing sentiment_analysis tool
+│   ├── mcp_client_stdio.py           # MCP client (stdio transport)
+│   ├── mcp_client_sse.py             # MCP client (SSE transport)
+│   └── mcp_client_streamable.py      # MCP client (streamable-http transport)
+├── tests/
+│   ├── test_sentiment_analysis.py    # Unit tests for sentiment_analysis tool
+│   ├── test_client_stdio.py          # Tests for stdio client
+│   ├── test_client_sse.py            # Tests for SSE client
+│   └── test_client_streamable.py     # Tests for streamable-http client
+├── requirements.txt                  # Python dependencies
+├── README.md                         # Project documentation and usage
+├── LICENSE                           # License file
+├── .gitignore                        # Git ignore rules
+└── .gitattributes                    # Git LFS attributes
+```
 
 
 ## How It Works
