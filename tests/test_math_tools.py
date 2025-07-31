@@ -7,7 +7,7 @@ import pytest
 import sys
 import os
 
-from fastmcp import FastMCP, Client
+from fastmcp import Client
 
 # Allow import from mcp-sentiment directory
 sys.path.insert(
