@@ -146,7 +146,7 @@ interactive_graph = interactive_builder.compile()
 async def main():
     """Main function to run the interactive agent."""
     print(
-        "Welcome to the MCP Agent! Ask me questions and I'll use tools to help answer them."
+        "\nWelcome to the MCP Agent! Ask me questions and I'll use tools to help answer them."
     )
     print("Type an empty message to exit.")
 

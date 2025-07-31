@@ -40,20 +40,14 @@ MCP Agent facilitates communication between clients and sentiment analysis tools
 ## Module Relationship Diagram
 
 ```
-+-------------------+
-|   agent_client.py |
-+-------------------+
-          |
-          |  invokes/calls
-          v
+            +-------------------+
+            |   agent_client.py |
+            +-------------------+
+                /           \
+               v             v
 +-------------------+      +----------------------+
 |   math_tools.py   |      |  sentiment_tools.py  |
 +-------------------+      +----------------------+
-          ^                        ^
-          |                        |
-          +------------------------+
-          |   tools registered with|
-          |   agent_client.py      |
 ```
 
 ## LangGraph Workflow in agent_client.py
@@ -99,3 +93,4 @@ MCP Agent facilitates communication between clients and sentiment analysis tools
 +---------------------+ 
 |   End Session       |
 +---------------------+
+```
