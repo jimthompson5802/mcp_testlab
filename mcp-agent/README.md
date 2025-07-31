@@ -8,64 +8,86 @@ MCP Agent facilitates communication between clients and sentiment analysis tools
 
 ## Module Summary
 
-## Agent Client Module (agent_client.py)
+### agent_client.py
 
-This module implements an interactive AI agent that combines language model capabilities with specialized tools via the Model Context Protocol (MCP). It creates an intelligent assistant that can:
+agent_client.py is an interactive client application that connects AI models with MCP-based tools. It showcases how to build an AI assistant that can perform mathematical operations and sentiment analysis.
 
-1. **Perform mathematical operations** using math tools
-2. **Analyze sentiment in text** using sentiment analysis tools
+#### Key Features
 
-### Key Components
+- **Multi-Server MCP Client**: Connects to multiple MCP servers (math and sentiment tools)
+- **LangChain Integration**: Uses LangChain's chat model interface with OpenAI's GPT-4o-mini
+- **LangGraph Workflow**: Implements a state machine using StateGraph for conversation flow
+- **Interactive Interface**: Provides a command-line interface for user interaction
+- **Asynchronous Design**: Leverages Python's asyncio for non-blocking operations
 
-- **Multi-server MCP Client**: Connects to two FastMCP servers (math and sentiment) using stdio transport
-- **LangChain Integration**: Uses OpenAI's GPT-4o-mini model with tool binding
-- **LangGraph Workflow**: Creates a directed graph for message processing with:
-  - User input handling
-  - LLM response generation
-  - Tool execution
-  - Response display
+#### Architecture
 
-### Workflow
+The client implements a conversation loop with the following components:
 
-1. The agent initializes with a system message defining its capabilities
-2. It dynamically loads available tools from MCP servers
-3. When a user submits a query:
-   - The LLM determines if tools are needed
-   - If tools are required, it dispatches to the appropriate tool server
-   - Results are formatted and presented to the user
-4. The interaction loop continues until the user exits
+1. **User Input Handler**: Asynchronously collects user queries
+2. **Model Invocation**: Routes queries to the LLM with bound tools
+3. **Tool Execution**: Dispatches tool calls to appropriate MCP servers
+4. **Response Formatter**: Presents results back to the user
 
-### Technical Features
+### math_tools.py
 
-- **Asynchronous Design**: Uses `asyncio` for non-blocking operations
-- **State Management**: Maintains conversation state through the graph workflow
-- **Error Handling**: Gracefully handles exceptions and termination
-- **Conditional Routing**: Directs flow based on message content and tool needs
+math_tools.py provides a simple MCP server for mathematical operations using the FastMCP framework.
 
-The module provides a clean, interactive command-line interface for users to engage with the agent's capabilities while abstracting the complexity of the underlying tool connections.
+#### Available Tools
 
+- **add**: Adds two integers
+  ```python
+  add(a: int, b: int) -> int
+  ```
+- **multiply**: Multiplies two integers
+  ```python
+  multiply(a: int, b: int) -> int
+  ```
 
-- **math_tools.py**  
-  Defines mathematical tool functions that can be registered with an MCP agent.  
-  This module provides:
-  - Implementations of basic mathematical operations (such as addition and multiplication)
-  - Functions decorated for MCP tool registration, making them discoverable and callable via the MCP protocol
-  - Input validation and error handling for mathematical operations
-  - Docstrings describing each tool's purpose, input parameters, and return values, following Google-style documentation
-  - Example usage patterns for integrating math tools into an MCP agent session
+#### Implementation Details
 
-- **sentiment_tools.py**  
-  Implements sentiment analysis tools for use with MCP agents.  
-  This module provides:
-  - Functions that analyze input text and return sentiment scores or labels (e.g., positive, negative, neutral)
-  - Tool functions decorated for MCP registration, making them accessible to clients via the MCP protocol
-  - Input validation to ensure text data is suitable for analysis
-  - Error handling for invalid or unexpected input
-  - Google-style docstrings for each tool, documenting arguments, return values, and example usage
-  - Example integration patterns for registering sentiment tools with an MCP agent session
+- Built using FastMCP with the server name "MathTools"
+- Configured for stdio transport by default
+- Includes comprehensive docstrings following Google style
+- Provides proper type annotations for all parameters and return values
+
+### sentiment_tools.py
+
+sentiment_tools.py exposes natural language sentiment analysis capabilities through the MCP interface.
+
+#### Available Tools
+
+- **analyze_sentiment**: Analyzes text for emotional tone
+  ```python
+  analyze_sentiment(text: str) -> dict
+  ```
+
+#### Return Format
+
+The sentiment analysis tool returns a dictionary with:
+
+- **polarity**: Float between -1.0 (negative) and 1.0 (positive)
+- **subjectivity**: Float between 0.0 (objective) and 1.0 (subjective)
+- **assessment**: String classification ("positive", "negative", or "neutral")
+
+#### Implementation Details
+
+- Uses TextBlob for sentiment analysis
+- Built with FastMCP with the server name "SentimentTools"
+- Follows project coding standards with comprehensive documentation
+- Configured for stdio transport by default
 
 
 ## Example Usage
+
+The components work together to create an AI assistant that can:
+
+1. Process natural language queries
+2. Identify when to use mathematical or sentiment analysis tools
+3. Execute appropriate tool calls
+4. Format and return results in a user-friendly manner
+
+This implementation demonstrates the Model Context Protocol's ability to seamlessly connect AI models with specialized tools, creating a more capable assistant.
 
 
 ### Starting the MCP Agent
