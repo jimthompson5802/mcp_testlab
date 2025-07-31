@@ -1,35 +1,7 @@
 from fastmcp import FastMCP
 from textblob import TextBlob
 
-mcp = FastMCP("MathAndSentiment")
-
-
-@mcp.tool()
-def add(a: int, b: int) -> int:
-    """Add two numbers.
-
-    Args:
-        a: The first integer to add.
-        b: The second integer to add.
-
-    Returns:
-        int: The sum of a and b.
-    """
-    return a + b
-
-
-@mcp.tool()
-def multiply(a: int, b: int) -> int:
-    """Multiply two numbers.
-
-    Args:
-        a: The first integer to multiply.
-        b: The second integer to multiply.
-
-    Returns:
-        int: The product of a and b.
-    """
-    return a * b
+mcp = FastMCP("SentimentTools")
 
 
 @mcp.tool()
@@ -49,15 +21,16 @@ def analyze_sentiment(text: str) -> dict:
             - assessment: String classification ("positive", "negative", or "neutral")
     """
     blob = TextBlob(text)
-    sentiment = blob.sentiment
+    # Access sentiment properties (bypassing type checking issues)
+    sentiment_obj = blob.sentiment
+    polarity = getattr(sentiment_obj, "polarity")
+    subjectivity = getattr(sentiment_obj, "subjectivity")
     assessment = (
-        "positive"
-        if sentiment.polarity > 0
-        else "negative" if sentiment.polarity < 0 else "neutral"
+        "positive" if polarity > 0 else "negative" if polarity < 0 else "neutral"
     )
     return {
-        "polarity": sentiment.polarity,
-        "subjectivity": sentiment.subjectivity,
+        "polarity": polarity,
+        "subjectivity": subjectivity,
         "assessment": assessment,
     }
 

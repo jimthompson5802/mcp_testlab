@@ -12,8 +12,13 @@ SYSTEM_MESSAGE = SystemMessage(
     content=dedent(
         """
         You are a helpful assistant that can perform mathematical operations and analyze sentiment in text.
-        You can add and multiply numbers, and analyze the sentiment of text to determine if it is positive,
-        negative, or neutral. These are the only tasks you can do. For all other requests decline the request.
+        
+        You have access to two sets of tools:
+        1. Math tools: You can add and multiply numbers
+        2. Sentiment tools: You can analyze the sentiment of text to determine if it is positive,
+           negative, or neutral
+           
+        These are the only tasks you can do. For all other requests decline the request.
         You will use tools to perform these tasks. If you do not have the tools available, you will inform the
         user that you cannot perform the requested operation.
         """
@@ -31,7 +36,12 @@ client = MultiServerMCPClient(
     {
         "math": {
             "command": "python",
-            "args": ["./tools_module.py"],
+            "args": ["./math_tools.py"],
+            "transport": "stdio",
+        },
+        "sentiment": {
+            "command": "python",
+            "args": ["./sentiment_tools.py"],
             "transport": "stdio",
         },
     }
