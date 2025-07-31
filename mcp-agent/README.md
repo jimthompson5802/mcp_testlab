@@ -37,6 +37,141 @@ MCP Agent facilitates communication between clients and sentiment analysis tools
   - Google-style docstrings for each tool, documenting arguments, return values, and example usage
   - Example integration patterns for registering sentiment tools with an MCP agent session
 
+
+## Example Usage
+
+
+### Starting the MCP Agent
+
+To use the MCP Agent client, 
+```bash
+python mcp-agent/agent_client.py
+((venv) ) Mac:jim mcp_testlab[514]$ python mcp-agent/agent_client.py 
+[07/31/25 17:40:35] INFO     Starting MCP server 'MathTools' with transport 'stdio'                   server.py:1371
+[07/31/25 17:40:35] INFO     Starting MCP server 'SentimentTools' with transport 'stdio'              server.py:1371
+
+Welcome to the MCP Agent! Ask me questions and I'll use tools to help answer them.
+Type an empty message to exit.
+
+Enter your question (or press Enter to exit): 
+```
+
+### Available Tools
+
+```bash
+Enter your question (or press Enter to exit): what tools are available
+
+Processing: 'what tools are available'
+
+Response: I have access to two sets of tools:
+
+1. Math tools: I can perform addition and multiplication of numbers.
+2. Sentiment tools: I can analyze the sentiment of text to determine if it is positive, negative, or neutral.
+
+Let me know if you need help with any mathematical operations or sentiment analysis!
+```
+
+### Tool Details
+```bash
+Enter your question (or press Enter to exit): list details about each tool
+
+Processing: 'list details about each tool'
+
+Response: Here are the details about each tool available:
+
+### Math Tools
+1. **Add**
+   - **Function**: Adds two integers.
+   - **Arguments**: 
+     - `a`: The first integer to add.
+     - `b`: The second integer to add.
+   - **Returns**: The sum of `a` and `b`.
+
+2. **Multiply**
+   - **Function**: Multiplies two integers.
+   - **Arguments**: 
+     - `a`: The first integer to multiply.
+     - `b`: The second integer to multiply.
+   - **Returns**: The product of `a` and `b`.
+
+### Sentiment Tools
+1. **Analyze Sentiment**
+   - **Function**: Analyzes the sentiment of provided text.
+   - **Arguments**: 
+     - `text`: The input text string to analyze for sentiment.
+   - **Returns**: A dictionary containing:
+     - `polarity`: Float between -1.0 (negative) and 1.0 (positive).
+     - `subjectivity`: Float between 0.0 (objective) and 1.0 (subjective).
+     - `assessment`: String classification ("positive", "negative", or "neutral").
+
+If you would like to use any of these tools, just let me know how I can assist you!
+```
+
+### Using Math Tools
+
+```bash
+Enter your question (or press Enter to exit): what is 3 plus 4
+
+Processing: 'what is 3 plus 4'
+[07/31/25 17:44:43] INFO     Starting MCP server 'MathTools' with transport 'stdio'                   server.py:1371
+
+Response: 3 plus 4 equals 7.
+
+Enter your question (or press Enter to exit): what is 3 times 4
+
+Processing: 'what is 3 times 4'
+[07/31/25 17:44:54] INFO     Starting MCP server 'MathTools' with transport 'stdio'                   server.py:1371
+
+Response: 3 times 4 equals 12.
+
+Enter your question (or press Enter to exit): what is 8 divided by 4
+
+Processing: 'what is 8 divided by 4'
+
+Response: I cannot perform division operations. Please let me know if you need help with addition, multiplication, or sentiment analysis!
+```
+### Using Sentiment Tools
+```bash
+Enter your question (or press Enter to exit): I love MCP
+
+Processing: 'I love MCP'
+[07/31/25 17:45:52] INFO     Starting MCP server 'SentimentTools' with transport 'stdio'              server.py:1371
+
+Response: The sentiment analysis of the text "I love MCP" is as follows:
+- Polarity: 0.5 (positive)
+- Subjectivity: 0.6 (subjective)
+- Assessment: positive
+
+Enter your question (or press Enter to exit): Learning Python is fun                  
+
+Processing: 'Learning Python is fun'
+[07/31/25 17:46:27] INFO     Starting MCP server 'SentimentTools' with transport 'stdio'              server.py:1371
+
+Response: The sentiment analysis of the text "Learning Python is fun" is as follows:
+- Polarity: 0.3 (positive)
+- Subjectivity: 0.2 (objective)
+- Assessment: positive
+
+Enter your question (or press Enter to exit): Learning JAVA is very hard and difficult
+
+Processing: 'Learning JAVA is very hard and difficult'
+[07/31/25 17:46:40] INFO     Starting MCP server 'SentimentTools' with transport 'stdio'              server.py:1371
+
+Response: The sentiment analysis of the text "Learning JAVA is very hard and difficult" is as follows:
+- Polarity: -0.44 (negative)
+- Subjectivity: 0.85 (subjective)
+- Assessment: negative
+```
+
+### Question not Supported by Tools
+```bash
+Enter your question (or press Enter to exit): what is the capital of hawaii
+
+Processing: 'what is the capital of hawaii'
+
+Response: I cannot provide information on geographical locations or facts. However, if you have any mathematical operations or need sentiment analysis, feel free to ask!
+```
+
 ## Module Relationship Diagram
 
 ```

@@ -40,12 +40,12 @@ client = MultiServerMCPClient(
     {
         "math": {
             "command": "python",
-            "args": ["./math_tools.py"],
+            "args": ["mcp-agent/math_tools.py"],
             "transport": "stdio",
         },
         "sentiment": {
             "command": "python",
-            "args": ["./sentiment_tools.py"],
+            "args": ["mcp-agent/sentiment_tools.py"],
             "transport": "stdio",
         },
     }
