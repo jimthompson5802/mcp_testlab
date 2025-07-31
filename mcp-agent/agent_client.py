@@ -46,39 +46,86 @@ async def call_model(state: MessagesState):
     return {"messages": [response]}
 
 
-# Build LangGraph state graph
-builder = StateGraph(MessagesState)
-builder.add_node("call_model", call_model)
-builder.add_node("tools", tool_node)
-builder.add_edge(START, "call_model")
-builder.add_conditional_edges(
-    "call_model", should_continue, {"tools": "tools", END: END}
+# Replace synchronous input() with async-safe alternative
+async def async_input(prompt: str = "") -> str:
+    """Async-safe version of input() that doesn't block the event loop."""
+    # Print the prompt
+    print(prompt, end="", flush=True)
+
+    # Use asyncio.to_thread to run input() in a separate thread
+    # This avoids blocking the event loop
+    return await asyncio.to_thread(input)
+
+
+async def prompt_user(state: MessagesState):
+    """Prompts the user for input and returns it as a message."""
+    try:
+        user_input = await async_input(
+            "\nEnter your question (or press Enter to exit): "
+        )
+        if not user_input:
+            return {"messages": [], "exit": True}
+        print(f"\nProcessing: '{user_input}'")
+        return {"messages": [{"role": "user", "content": user_input}], "exit": False}
+    except EOFError:
+        # Handle EOFError gracefully (e.g., when running in non-interactive environment)
+        print("\nEOF detected. Exiting...")
+        return {"messages": [], "exit": True}
+
+
+async def print_result(state):
+    """Prints the result from the LLM or tool execution."""
+    if not state["messages"]:
+        return state
+
+    last_message = state["messages"][-1]
+    if hasattr(last_message, "content") and last_message.content:
+        print(f"\nResponse: {last_message.content}")
+    else:
+        print(f"\nResponse: {last_message}")
+    return state
+
+
+def should_exit(state):
+    """Determines if we should exit the loop."""
+    if state.get("exit", False):
+        return END
+    return "prompt_user"
+
+
+# Build interactive graph
+interactive_builder = StateGraph(MessagesState)
+interactive_builder.add_node("prompt_user", prompt_user)
+interactive_builder.add_node("call_model", call_model)
+interactive_builder.add_node("tools", tool_node)
+interactive_builder.add_node("print_result", print_result)
+
+# Connect the nodes
+interactive_builder.add_edge(START, "prompt_user")
+interactive_builder.add_edge("prompt_user", "call_model")
+interactive_builder.add_conditional_edges(
+    "call_model", should_continue, {"tools": "tools", END: "print_result"}
 )
-builder.add_edge("tools", "call_model")
-graph = builder.compile()
+interactive_builder.add_edge("tools", "call_model")
+interactive_builder.add_conditional_edges(
+    "print_result", should_exit, {"prompt_user": "prompt_user", END: END}
+)
+
+interactive_graph = interactive_builder.compile()
 
 
-# Example use: ask math question
 async def main():
-
-    user_prompt = "What is 6 x 7 plus 3?"
-    print(f"User prompt: {user_prompt}")
-    result = await graph.ainvoke(
-        {"messages": [{"role": "user", "content": user_prompt}]}
+    """Main function to run the interactive agent."""
+    print(
+        "Welcome to the MCP Agent! Ask me questions and I'll use tools to help answer them."
     )
+    print("Type an empty message to exit.")
 
-    # Extract and print a human-readable response
-    last_message = result["messages"][-1].content
-    print(f"response: {last_message}")
+    # Start with empty state
+    state = {"messages": []}
+    await interactive_graph.ainvoke(state)
 
-    # Example use: ask a different question
-    user_prompt = "I Love MCP"
-    result = await graph.ainvoke(
-        {"messages": [{"role": "user", "content": user_prompt}]}
-    )
-
-    last_message = result["messages"][-1].content
-    print(f"response: {last_message}")
+    print("\nThank you for using the MCP Agent. Goodbye!")
 
 
 if __name__ == "__main__":
