@@ -100,17 +100,21 @@ interactive_builder.add_node("call_model", call_model)
 interactive_builder.add_node("tools", tool_node)
 interactive_builder.add_node("print_result", print_result)
 
-# Connect the nodes
+# Connect the nodes - Fixing the infinite recursion issue
 interactive_builder.add_edge(START, "prompt_user")
-interactive_builder.add_edge("prompt_user", "call_model")
+interactive_builder.add_conditional_edges(
+    "prompt_user",
+    lambda state: "call_model" if not state.get("exit", False) else END,
+    {"call_model": "call_model", END: END},
+)
 interactive_builder.add_conditional_edges(
     "call_model", should_continue, {"tools": "tools", END: "print_result"}
 )
 interactive_builder.add_edge("tools", "call_model")
-interactive_builder.add_conditional_edges(
-    "print_result", should_exit, {"prompt_user": "prompt_user", END: END}
-)
+# Use direct edge to prompt_user instead of conditional to avoid infinite recursion
+interactive_builder.add_edge("print_result", "prompt_user")
 
+# Compile the graph without the recursion_limit parameter
 interactive_graph = interactive_builder.compile()
 
 
@@ -121,11 +125,14 @@ async def main():
     )
     print("Type an empty message to exit.")
 
-    # Start with empty state
-    state = {"messages": []}
-    await interactive_graph.ainvoke(state)
-
-    print("\nThank you for using the MCP Agent. Goodbye!")
+    try:
+        # Start with empty state
+        state = {"messages": [], "exit": False}
+        # Pass the recursion_limit in the config parameter
+        await interactive_graph.ainvoke(state, {"recursion_limit": 100})
+    except Exception as e:
+        print(f"Error: {e}")
+        print("Agent terminated due to an error.")
 
 
 if __name__ == "__main__":
