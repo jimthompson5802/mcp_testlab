@@ -4,6 +4,21 @@ from langchain_mcp_adapters.client import MultiServerMCPClient
 from langchain.chat_models import init_chat_model
 from langgraph.graph import StateGraph, MessagesState, START, END
 from langgraph.prebuilt import ToolNode
+from langchain.schema import SystemMessage
+from textwrap import dedent
+
+
+SYSTEM_MESSAGE = SystemMessage(
+    content=dedent(
+        """
+        You are a helpful assistant that can perform mathematical operations and analyze sentiment in text.
+        You can add and multiply numbers, and analyze the sentiment of text to determine if it is positive,
+        negative, or neutral. These are the only tasks you can do. For all other requests decline the request.
+        You will use tools to perform these tasks. If you do not have the tools available, you will inform the
+        user that you cannot perform the requested operation.
+        """
+    )
+)
 
 # Load environment variables from .env file
 load_dotenv()
@@ -127,7 +142,7 @@ async def main():
 
     try:
         # Start with empty state
-        state = {"messages": [], "exit": False}
+        state = {"messages": [SYSTEM_MESSAGE], "exit": False}
         # Pass the recursion_limit in the config parameter
         await interactive_graph.ainvoke(state, {"recursion_limit": 100})
     except Exception as e:
