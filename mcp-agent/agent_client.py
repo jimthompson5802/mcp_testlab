@@ -21,6 +21,10 @@ SYSTEM_MESSAGE = SystemMessage(
         These are the only tasks you can do. For all other requests decline the request.
         You will use tools to perform these tasks. If you do not have the tools available, you will inform the
         user that you cannot perform the requested operation.
+
+        When returning a response for the math tools, strip out any LaTeX formatting.
+
+        When returning a response for the sentiment tools, return polarity, subjectivity, and sentiment label.
         """
     )
 )
