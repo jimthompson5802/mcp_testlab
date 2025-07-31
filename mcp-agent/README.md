@@ -8,15 +8,42 @@ MCP Agent facilitates communication between clients and sentiment analysis tools
 
 ## Module Summary
 
-- **agent_client.py**  
-  Implements a client for communicating with MCP agents.  
-  This module provides classes and functions to:
-  - Establish and manage connections to an MCP agent using supported transports (such as stdio)
-  - Send requests and receive responses following the MCP message protocol
-  - Handle session lifecycle, including initialization, message sequencing, and graceful shutdown
-  - Abstract transport details so that higher-level code can interact with the agent in a uniform way
-  - Provide error handling and reconnection logic to ensure robust client-agent communication
-  - Support both synchronous and asynchronous usage patterns, enabling integration in various application types
+## Agent Client Module (agent_client.py)
+
+This module implements an interactive AI agent that combines language model capabilities with specialized tools via the Model Context Protocol (MCP). It creates an intelligent assistant that can:
+
+1. **Perform mathematical operations** using math tools
+2. **Analyze sentiment in text** using sentiment analysis tools
+
+### Key Components
+
+- **Multi-server MCP Client**: Connects to two FastMCP servers (math and sentiment) using stdio transport
+- **LangChain Integration**: Uses OpenAI's GPT-4o-mini model with tool binding
+- **LangGraph Workflow**: Creates a directed graph for message processing with:
+  - User input handling
+  - LLM response generation
+  - Tool execution
+  - Response display
+
+### Workflow
+
+1. The agent initializes with a system message defining its capabilities
+2. It dynamically loads available tools from MCP servers
+3. When a user submits a query:
+   - The LLM determines if tools are needed
+   - If tools are required, it dispatches to the appropriate tool server
+   - Results are formatted and presented to the user
+4. The interaction loop continues until the user exits
+
+### Technical Features
+
+- **Asynchronous Design**: Uses `asyncio` for non-blocking operations
+- **State Management**: Maintains conversation state through the graph workflow
+- **Error Handling**: Gracefully handles exceptions and termination
+- **Conditional Routing**: Directs flow based on message content and tool needs
+
+The module provides a clean, interactive command-line interface for users to engage with the agent's capabilities while abstracting the complexity of the underlying tool connections.
+
 
 - **math_tools.py**  
   Defines mathematical tool functions that can be registered with an MCP agent.  
