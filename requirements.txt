@@ -1,5 +1,10 @@
 gradio[mcp]
 textblob
+fastmcp
+langchain
+langchain-openai
+langgraph
+langchain-mcp-adapters
 requests
 uv
 pytest
