@@ -224,7 +224,9 @@ Response: I cannot provide information on geographical locations or facts. Howev
             |   agent_client.py |
             +-------------------+
                 /           \
-               v             v
+              MCP           MCP
+              /               \
+             v                 v
 +-------------------+      +----------------------+
 |   math_tools.py   |      |  sentiment_tools.py  |
 +-------------------+      +----------------------+
