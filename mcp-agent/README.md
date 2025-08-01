@@ -18,6 +18,8 @@ agent_client.py is an interactive client application that connects AI models wit
 
 #### Architecture
 
+![](../images/agent_langgraph_workflow.png)
+
 The client implements a conversation loop with the following components:
 
 1. **User Input Handler**: Asynchronously collects user queries
@@ -232,6 +234,3 @@ Response: I cannot provide information on geographical locations or facts. Howev
 +-------------------+      +----------------------+
 ```
 
-## LangGraph Workflow in agent_client.py
-
-![](../images/agent_langgraph_workflow.png)
