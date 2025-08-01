@@ -155,8 +155,9 @@ async def main():
     print("Type an empty message to exit.")
 
     try:
-        # Start with empty state
+        # Start with the initial state
         state = {"messages": [SYSTEM_MESSAGE], "exit": False}
+
         # Pass the recursion_limit in the config parameter
         await interactive_graph.ainvoke(state, {"recursion_limit": 100})
     except Exception as e:

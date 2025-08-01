@@ -9,3 +9,4 @@ requests
 uv
 pytest
 pytest-asyncio
+pytest-cov
