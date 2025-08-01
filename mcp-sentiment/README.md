@@ -390,16 +390,6 @@ INFO:     Finished server process [2701]
 Terminated: 15             python mcp-sentiment/app_fastmcp.py --transport streamable-http
 ```
 
-## Unit Tests
-Unit tests are provided to ensure the functionality of the MCP server and client. To run the tests, use the following command:
-```bash
-$ pytest -v tests
-```
-
-Sample output:
-
-![](./images/mcp_unit_tests.png)
-
 ## MCP Inspector
 
 The MCP Inspector is a tool for exploring and interacting with Model Context Protocol (MCP) servers. It provides a user-friendly interface for:
