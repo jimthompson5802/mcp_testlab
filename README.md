@@ -1,5 +1,12 @@
 # Model Context Protocol (MCP) Test Lab
 
+This project demonstrates the use of Model Context Protocol (MCP) and how it works with `langgraph` to build an agent.  There are two parts to this project.   
+
+The first demonstrates the use of MCP for sentiment analysis and is based on the [Hugging Face MCP Course](https://huggingface.co/learn/mcp-course/unit2/introduction). Instead of using the `gradio` library in the HuggingFace course, this project utilizes the `fastmcp` library to implement an MCP server and client.
+
+The second part implements an MCP agent that connects to various tools, including mathematical operations and sentiment analysis capabilities, allowing for a more complex AI assistant.  This part makes use of the `langgraph` library to create an agent that can interact with these tools.
+
+
 ## Overview
 
 This project demonstrates different implementations of the Model Context Protocol (MCP) with a focus on sentiment analysis and agent capabilities:

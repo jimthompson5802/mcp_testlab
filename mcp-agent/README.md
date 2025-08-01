@@ -1,10 +1,6 @@
 # MCP Agent
 
-This directory contains implementations of Model Context Protocol (MCP) agents. These agents serve as intermediaries that connect clients to MCP-powered tools and services.
-
-## Overview
-
-MCP Agent facilitates communication between clients and sentiment analysis tools using the Model Context Protocol. It supports multiple transport protocols allowing flexible deployment in various environments.
+This README provides an overview of the MCP Agent, a modular AI assistant that connects to MCP-based math and sentiment analysis tools. It describes the architecture, available modules (`agent_client.py`, `math_tools.py`, `sentiment_tools.py`), example usage scenarios, tool capabilities, and the workflow for handling user queries. The document also includes command-line usage instructions, sample interactions, and diagrams illustrating module relationships and the conversation flow.
 
 ## Module Summary
 

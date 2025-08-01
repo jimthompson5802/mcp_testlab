@@ -1,7 +1,8 @@
 # MCP Testbed
 
-This project demonstrates sentiment analysis using the Model Context Protocol (MCP) and is based on the [Hugging Face MCP Course](https://huggingface.co/learn/mcp-course/unit2/introduction). Instead of using the `gradio` library in the HuggingFace course, this project utilizes the `fastmcp` library to implement an MCP server and client.
+## Overview
 
+This README provides documentation for the MCP Testbed, a project demonstrating sentiment analysis using the Model Context Protocol (MCP). It describes the architecture, main components, directory structure, and usage examples for the MCP server and three client implementations (stdio, SSE, and streamable-http). The guide includes instructions for running tests, using the MCP Inspector tool, and interacting with the sentiment analysis service via command-line or web-based transports.
 
 ## Main Components
 
