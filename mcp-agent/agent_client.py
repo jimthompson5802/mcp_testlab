@@ -1,4 +1,5 @@
 import asyncio
+import os
 from dotenv import load_dotenv
 from langchain_mcp_adapters.client import MultiServerMCPClient
 from langchain.chat_models import init_chat_model
@@ -145,6 +146,11 @@ interactive_builder.add_edge("print_result", "prompt_user")
 
 # Compile the graph without the recursion_limit parameter
 interactive_graph = interactive_builder.compile()
+
+# check if workflow graph file exists, if not create it
+if not os.path.exists("./images/agent_langgraph_workflow.png"):
+    # Draw the graph to a PNG file
+    interactive_graph.get_graph().draw_png("./images/agent_langgraph_workflow.png")
 
 
 async def main():

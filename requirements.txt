@@ -10,3 +10,4 @@ uv
 pytest
 pytest-asyncio
 pytest-cov
+pygraphviz

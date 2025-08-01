@@ -234,46 +234,4 @@ Response: I cannot provide information on geographical locations or facts. Howev
 
 ## LangGraph Workflow in agent_client.py
 
-```
-+---------------------+
-|   Start Session     |
-+---------------------+
-           |
-           v
-+---------------------+
-|   Receive Input     |<-------+
-+---------------------+        |
-           |                   |
-           v                   |
-+---------------------+        |
-|   Select Tool       |        |
-| (math/sentiment)    |        |
-+---------------------+        |
-           |                   |
-           v                   |
-+---------------------+        |
-|   Invoke Tool Node  |        |
-+---------------------+        |
-           |                   |
-           v                   |
-+---------------------+        |
-|   Collect Result    |        |
-+---------------------+        |
-           |                   |
-           v                   |
-+---------------------+        |
-|   Send Response     |        |
-+---------------------+        |
-           |                   |
-           v                   |
-+---------------------+        |
-|  More Input?        |--Yes---+
-+---------------------+
-              |
-              No
-              v
-+---------------------+ 
-|   End Session       |
-+---------------------+
-```
-
+![](../images/agent_langgraph_workflow.png)

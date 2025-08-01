@@ -44,6 +44,46 @@ mcp_testlab/
 └── .gitattributes
 ```
 
+## Setup Instructions
+
+To set up the project, follow these steps:
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/jimthompson5802/mcp_testlab.git
+   cd mcp_testlab
+   ```
+
+2. Create a virtual environment:
+   ```bash
+   python -m venv venv
+   
+   source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+   ```
+
+3. Install system dependencies (if needed):
+   - For macOS, you may need to install Graphviz:
+     ```bash
+     brew install graphviz
+     ```
+
+   - For Linux, you can install Graphviz using your package manager, e.g.:
+     ```bash
+     sudo apt-get install graphviz
+     ```
+
+    - setup environment variables for CFLAGS and LDFLAGS:
+   ```bash
+   # For macOS with Homebrew
+   export CFLAGS="-I/opt/homebrew/include"
+   export LDFLAGS="-L/opt/homebrew/lib"
+   ```
+  
+4. Install the required packages:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
 ## Unit Tests
 Unit tests are provided to ensure the functionality of the MCP server and client. To run the tests, use the following command:
 ```bash
