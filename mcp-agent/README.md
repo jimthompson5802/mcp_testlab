@@ -18,14 +18,16 @@ agent_client.py is an interactive client application that connects AI models wit
 
 #### Architecture
 
-![](../images/agent_langgraph_workflow.png)
-
 The client implements a conversation loop with the following components:
 
 1. **User Input Handler**: Asynchronously collects user queries
 2. **Model Invocation**: Routes queries to the LLM with bound tools
 3. **Tool Execution**: Dispatches tool calls to appropriate MCP servers
 4. **Response Formatter**: Presents results back to the user
+
+#### Workflow
+
+![](../images/agent_langgraph_workflow.png)
 
 ### math_tools.py
 
