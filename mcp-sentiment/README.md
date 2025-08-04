@@ -66,6 +66,9 @@ Each client module communicates with the MCP server using a different transport 
 - **tests/test_client_streamable.py**  
   Integration tests for the streamable-http client, including server process management and sentiment analysis checks.
 
+- **tests/test_00multi_transport.py**  
+  Integration tests for the multi-transport client, ensuring it can handle all three transport types correctly.
+
 
 ## How It Works
 
