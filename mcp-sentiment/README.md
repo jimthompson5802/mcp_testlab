@@ -80,18 +80,18 @@ The `app_fastmcp.py` file implements an MCP server using FastMCP that:
   - Polarity score (-1 to 1, negative to positive)
   - Subjectivity score (0 to 1, objective to subjective)
   - Overall assessment (positive, negative, or neutral)
-- Supports `stdio` or `sse` or `streamable-http` transport for communication with clients
+- Supports `stdio`, `sse`, or `streamable-http` transport for communication with clients
 
 ### Client (mcp_client_stdio.py)
 
 The `mcp_client_stdio.py` file implements an MCP client that:
 - Uses the argparse library for command-line argument handling
 - Accepts text input as a required positional argument
-- Accepts an optional `--server` parameter to specify the server script path
-- Accepts an optional `--verbose` flag to display detailed tool information
+- Accepts an optional `--server` parameter to specify the server script path (default: `mcp-sentiment/app_fastmcp.py`)
+- Accepts an optional `--verbose` or `-v` flag to display detailed tool information
 - Establishes a connection to the MCP server using stdio transport
 - Lists available tools on the connected server
-- Sends the input text to the sentiment_analysis tool
+- Sends the input text to the `sentiment_analysis` tool
 - Displays formatted sentiment results showing polarity, subjectivity, and assessment
 - Properly manages resources with async context managers and AsyncExitStack
 
@@ -100,11 +100,11 @@ The `mcp_client_stdio.py` file implements an MCP client that:
 The `mcp_client_sse.py` file implements an MCP client that:
 - Uses the argparse library for command-line argument handling
 - Accepts text input as a required positional argument
-- Accepts an optional `--url` parameter to specify the server endpoint (default: http://localhost:8000/sse)
-- Accepts an optional `--verbose` flag to display detailed tool information
+- Accepts an optional `--url` parameter to specify the server endpoint (default: `http://localhost:8000/sse`)
+- Accepts an optional `--verbose` or `-v` flag to display detailed tool information
 - Establishes a connection to the MCP server using SSE transport
 - Lists available tools on the connected server
-- Sends the input text to the sentiment_analysis tool
+- Sends the input text to the `sentiment_analysis` tool
 - Displays formatted sentiment results showing polarity, subjectivity, and assessment
 - Properly manages resources with async context managers and AsyncExitStack
 
@@ -113,12 +113,12 @@ The `mcp_client_sse.py` file implements an MCP client that:
 The `mcp_client_streamable.py` file implements an MCP client that:
 - Uses the argparse library for command-line argument handling
 - Accepts text input as a required positional argument
-- Accepts an optional `--url` parameter to specify the server endpoint (default: http://localhost:8000/mcp)
-- Accepts an optional `--verbose` flag to display detailed tool information
+- Accepts an optional `--url` parameter to specify the server endpoint (default: `http://localhost:8000/mcp`)
+- Accepts an optional `--verbose` or `-v` flag to display detailed tool information
 - Establishes a connection to the MCP server using streamable-http transport
 - Displays the session ID when available
 - Lists available tools on the connected server
-- Sends the input text to the sentiment_analysis tool
+- Sends the input text to the `sentiment_analysis` tool
 - Displays formatted sentiment results showing polarity, subjectivity, and assessment
 - Properly manages resources with async context managers and AsyncExitStack
 
@@ -361,7 +361,7 @@ INFO:     127.0.0.1:54057 - "POST /mcp HTTP/1.1" 307 Temporary Redirect
 INFO:     127.0.0.1:54057 - "POST /mcp/ HTTP/1.1" 200 OK
                     INFO     Processing request of type CallToolRequest                                                                                                                            server.py:619
 INFO:     127.0.0.1:54059 - "DELETE /mcp HTTP/1.1" 307 Temporary Redirect
-                    INFO     Terminating session: 6a17c2206e6e478b830bd0da73771b8b                                                                                                        streamable_http.py:633
+                    INFO:     Terminating session: 6a17c2206e6e478b830bd0da73771b8b                                                                                                        streamable_http.py:633
 INFO:     127.0.0.1:54059 - "DELETE /mcp/ HTTP/1.1" 200 OK
 INFO:     Shutting down
 INFO:     Waiting for application shutdown.

@@ -4,18 +4,13 @@ These instructions help GitHub Copilot understand how to assist with the MCP Tes
 
 ## Project Overview
 
-This project demonstrates sentiment analysis using the Model Context Protocol (MCP). It implements:
+This project demonstrates using the Model Context Protocol (MCP). It uses the FastMCP Python SDK to create tools that can be accessed via multiple transport protocols. The main focus is on a sentiment analysis tool that can analyze text and return sentiment scores.
 
-- An MCP server for sentiment analysis using `FastMCP`
+- An MCP server [FastMCP Server](https://gofastmcp.com/python-sdk/fastmcp-server-server)
+- An MCP client [FastMCP Client](https://gofastmcp.com/python-sdk/fastmcp-client-client)
 - Multiple MCP clients using different transport protocols (stdio, SSE, streamable-http)
 - Command-line interfaces to interact with the sentiment analysis tool
 
-## Key Files and Components
-
-- `mcp-sentiment/app_fastmcp.py`: MCP server exposing sentiment analysis tool
-- `mcp-sentiment/mcp_client_stdio.py`: Client using stdio transport
-- `mcp-sentiment/mcp_client_sse.py`: Client using SSE transport
-- `mcp-sentiment/mcp_client_streamable.py`: Client using streamable-http transport
 
 ## Coding Style
 
