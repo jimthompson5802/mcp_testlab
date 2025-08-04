@@ -92,5 +92,6 @@ $ pytest -v tests
 
 Sample output:
 
-![](./images/mcp_unit_tests.png)
+![](./images/mcp_unit_tests1.png)
+![](./images/mcp_unit_tests2.png)
 
