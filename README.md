@@ -23,6 +23,7 @@ This project demonstrates different implementations of the Model Context Protoco
 mcp_testlab/
 ├── mcp-sentiment/
 │   ├── app_fastmcp.py
+│   ├── mcp_client_multi-transport.py
 │   ├── mcp_client_stdio.py
 │   ├── mcp_client_sse.py
 │   └── mcp_client_streamable.py
@@ -31,6 +32,7 @@ mcp_testlab/
 │   ├── math_tools.py
 │   └── sentiment_tools.py
 ├── tests/
+│   ├── test_00multi_transport.py
 │   ├── test_agent_client.py
 │   ├── test_client_stdio.py
 │   ├── test_client_sse.py
