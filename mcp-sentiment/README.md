@@ -48,6 +48,9 @@ Each client module communicates with the MCP server using a different transport 
 - **mcp-sentiment/mcp_client_streamable.py**  
   MCP client using streamable-http transport. Connects to the server via HTTP with bidirectional streaming, lists tools, and sends text for analysis. Uses argparse for CLI.
 
+- **mcp-sentiment/mcp_client_multi_transport.py**  
+  MCP client that can operate over multiple transports (`stdio`, `sse`, `streamable-http`). Connects to the server, lists tools, and sends text for sentiment analysis. Uses argparse for CLI.
+
 ### Tests
 
 - **tests/test_sentiment_analysis.py**  
@@ -117,6 +120,19 @@ The `mcp_client_streamable.py` file implements an MCP client that:
 - Accepts an optional `--verbose` or `-v` flag to display detailed tool information
 - Establishes a connection to the MCP server using streamable-http transport
 - Displays the session ID when available
+- Lists available tools on the connected server
+- Sends the input text to the `sentiment_analysis` tool
+- Displays formatted sentiment results showing polarity, subjectivity, and assessment
+- Properly manages resources with async context managers and AsyncExitStack
+
+### Client (mcp_client_multi_transport.py)
+
+The `mcp_client_multi_transport.py` file implements an MCP client that:
+- Uses the argparse library for command-line argument handling
+- Accepts text input as a required positional argument
+- Accepts an optional `--endpoint` parameter to specify MCP server endpoint (python module for `stdio` or the streamable-http (\*/mcp) or SSE (\*/sse) transport type (default: `mcp-sentiment/app_fastmcp.py`)
+- Accepts an optional `--verbose` or `-v` flag to display detailed tool information
+- Establishes a connection to the MCP server using the selected transport
 - Lists available tools on the connected server
 - Sends the input text to the `sentiment_analysis` tool
 - Displays formatted sentiment results showing polarity, subjectivity, and assessment
