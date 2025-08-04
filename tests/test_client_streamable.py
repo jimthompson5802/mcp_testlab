@@ -1,19 +1,16 @@
 import subprocess
-import signal
 import os
 import sys
 import time
 import pytest
 
 # Allow import from mcp-sentiment directory
-sys.path.insert(
-    0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../mcp-sentiment"))
-)
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "../mcp-sentiment")))
 
 for p in sys.path:
     print(f"sys.path: {p}")
 
-from mcp_client_streamable import main
+from mcp_client_streamable import main  # noqa: E402
 
 
 @pytest.fixture(scope="session")
@@ -44,9 +41,7 @@ def spawned_program_pid():
             proc.kill()
 
 
-@pytest.mark.parametrize(
-    "text, sentiment", [("I hate MCP!", "negative"), ("I love MCP!", "positive")]
-)
+@pytest.mark.parametrize("text, sentiment", [("I hate MCP!", "negative"), ("I love MCP!", "positive")])
 @pytest.mark.asyncio
 async def test_client_full_run(spawned_program_pid, monkeypatch, text, sentiment):
     test_args = ["prog", text]

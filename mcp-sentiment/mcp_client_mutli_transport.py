@@ -4,21 +4,20 @@ import json
 from typing import Tuple
 
 from fastmcp import Client
-from fastmcp.client.transports import SSETransport
+from fastmcp.client.transports import infer_transport
 
 
-async def run_client(server_url: str, text: str, verbose: bool) -> Tuple:
+async def run_client(server_endpoint: str, text: str, verbose: bool) -> Tuple:
     """Run the MCP client with the specified server and text.
 
     Args:
         server_script: Path to the server script
         text: Text to analyze for sentiment
     """
-    transport = SSETransport(url=server_url)
-
+    transport = infer_transport(server_endpoint)
     client = Client(transport)
     polarity, subjectivity, assessment = "N/A", "N/A", "unknown"
-    print(f"\nConnected to MCP server at {server_url}")
+    print(f"\nConnected to MCP server at {server_endpoint}")
 
     async with client:
         print("Listing available tools...")
@@ -77,17 +76,16 @@ def parse_arguments() -> argparse.Namespace:
     Returns:
         Parsed command line arguments
     """
-    # Set up argument parsing
     parser = argparse.ArgumentParser(
-        description="MCP SSE Client for Sentiment Analysis"
+        description="MCP Client for sentiment analysis using specified transport"
     )
-    parser.add_argument("text_to_test", type=str, help="Text to analyze for sentiment")
+    parser.add_argument("text", help="Text to analyze for sentiment")
     parser.add_argument(
-        "--url",
-        type=str,
-        default="http://localhost:8000/sse",
-        help="URL of the SSE server endpoint (default: http://localhost:8000/sse)",
-    )
+        "--endpoint",
+        default="mcp-sentiment/app_fastmcp.py",
+        help=("Endpoint for the MCP server. Python module for stdio, sse (*/sse) or "
+              "streamable-http (*/mcp) (default: mcp-sentiment/app_fastmcp.py)"),
+        )
     parser.add_argument(
         "--verbose",
         "-v",
@@ -95,14 +93,13 @@ def parse_arguments() -> argparse.Namespace:
         help="Display detailed information about available tools",
     )
 
-    # Parse arguments
     return parser.parse_args()
 
 
 async def main() -> Tuple:
     """Main entry point for the MCP stdio client."""
     args = parse_arguments()
-    results = await run_client(args.url, args.text_to_test, args.verbose)
+    results = await run_client(args.endpoint, args.text, args.verbose)
     print(f"\nSentiment Analysis Result: {results}")
     return results
 

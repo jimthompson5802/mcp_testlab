@@ -99,7 +99,7 @@ def parse_arguments() -> argparse.Namespace:
     return parser.parse_args()
 
 
-async def main() -> None:
+async def main() -> Tuple:
     """Main entry point for the MCP stdio client."""
     args = parse_arguments()
     results = await run_client(args.url, args.text_to_test, args.verbose)
