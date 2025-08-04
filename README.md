@@ -87,11 +87,10 @@ To set up the project, follow these steps:
 ## Unit Tests
 Unit tests are provided to ensure the functionality of the MCP server and client. To run the tests, use the following command:
 ```bash
-$ pytest -v tests
+$ pytest -v --cov tests
 ```
 
 Sample output:
 
 ![](./images/mcp_unit_tests1.png)
-![](./images/mcp_unit_tests2.png)
 
