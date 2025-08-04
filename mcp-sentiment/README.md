@@ -10,20 +10,20 @@ This README provides documentation for the MCP Testbed, a project demonstrating 
 ```
 +-------------------+                   +-------------------+
 |                   |                   |                   |
-|  mcp_client_stdio |<----------------->|                   |
+| mcp_client_stdio  |<----------------->|                   |
 |                   |      stdio        |                   |
 +-------------------+                   |                   |
                                         |                   |
 +-------------------+                   |                   |
 |                   |<----------------->|                   |
-|  mcp_client_sse   |-----/sse--------->|   MCP Server      |
+| mcp_client_sse    |-----/sse--------->|   MCP Server      |
 |                   |                   | (app_fastmcp.py)  |
 +-------------------+                   |                   |
                                         |                   |
 +-------------------+                   |                   |
 |                   |<----------------->|                   |
-| mcp_client_stream-|----/mcp---------->|                   |
-|    able.py        |                   |                   |
+| mcp_client_stream |----/mcp---------->|                   |
+|     streamable.py |                   |                   |
 +-------------------+                   +-------------------+
 ```
 
@@ -31,6 +31,7 @@ Each client module communicates with the MCP server using a different transport 
 - `mcp_client_stdio.py` uses stdio
 - `mcp_client_sse.py` uses SSE (Server-Sent Events) at `/sse`
 - `mcp_client_streamable.py` uses streamable-http at `/mcp`
+- `mcp_client_multi_transport.py` supports all three transports
 
 ### Server
 
@@ -49,7 +50,7 @@ Each client module communicates with the MCP server using a different transport 
   MCP client using streamable-http transport. Connects to the server via HTTP with bidirectional streaming, lists tools, and sends text for analysis. Uses argparse for CLI.
 
 - **mcp-sentiment/mcp_client_multi_transport.py**  
-  MCP client that can operate over multiple transports (`stdio`, `sse`, `streamable-http`). Connects to the server, lists tools, and sends text for sentiment analysis. Uses argparse for CLI.
+  MCP client that can operate over multiple transports (`stdio`, `sse`, `streamable-http`). Connects to the server, lists available tools, and sends text for sentiment analysis. Uses argparse for CLI.
 
 ### Tests
 
@@ -386,6 +387,27 @@ INFO:     Application shutdown complete.
 INFO:     Finished server process [2701]
 Terminated: 15             python mcp-sentiment/app_fastmcp.py --transport streamable-http
 ```
+
+### Example Usage with multi-transport Client
+
+**Command-line Arguments**
+```bash
+((venv) ) Mac:jim mcp_testlab[533]$ python mcp-sentiment/mcp_client_streamable.py --help
+usage: mcp_client_streamable.py [-h] [--url URL] [--verbose] text_to_test((venv) ) Mac:jim mcp_testlab[504]$ python mcp-sentiment/mcp_client_mutli_transport.py --help
+usage: mcp_client_mutli_transport.py [-h] [--endpoint ENDPOINT] [--verbose] text
+
+MCP Client for sentiment analysis using specified transport
+
+positional arguments:
+  text                 Text to analyze for sentiment
+
+options:
+  -h, --help           show this help message and exit
+  --endpoint ENDPOINT  Endpoint for the MCP server. Python module for stdio, sse (*/sse) or streamable-http (*/mcp) (default: mcp-
+                       sentiment/app_fastmcp.py)
+  --verbose, -v        Display detailed information about available tools
+```
+
 
 ## MCP Inspector
 
