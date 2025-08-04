@@ -8,10 +8,14 @@ from fastmcp.client.transports import infer_transport
 
 
 async def run_client(server_endpoint: str, text: str, verbose: bool) -> Tuple:
-    """Run the MCP client with the specified server and text.
+    """Run the MCP client that can determine at runtime the transport to use.
 
     Args:
-        server_script: Path to the server script
+        server_endpoint: server python module for stdio or remote endpoint for sse or streamable-http, e.g.,
+            mcp-sentiment/app_fastmcp.py for stdio,
+            http://remote-host/sse for sse
+            http://remote-host/mcp for streamable-http
+
         text: Text to analyze for sentiment
     """
     transport = infer_transport(server_endpoint)
@@ -52,12 +56,8 @@ async def run_client(server_endpoint: str, text: str, verbose: bool) -> Tuple:
             data = json.loads(response.data.result)
             if isinstance(data, dict):
                 print("\nSentiment Analysis Result:")
-                print(
-                    f"  Polarity: {data.get('polarity', 'N/A')} (-1=negative, 1=positive)"
-                )
-                print(
-                    f"  Subjectivity: {data.get('subjectivity', 'N/A')} (0=objective, 1=subjective)"
-                )
+                print(f"  Polarity: {data.get('polarity', 'N/A')} (-1=negative, 1=positive)")
+                print(f"  Subjectivity: {data.get('subjectivity', 'N/A')} (0=objective, 1=subjective)")
                 print(f"  Assessment: {data.get('assessment', 'N/A')}")
                 polarity = data.get("polarity", "N/A")
                 subjectivity = data.get("subjectivity", "N/A")
@@ -76,16 +76,16 @@ def parse_arguments() -> argparse.Namespace:
     Returns:
         Parsed command line arguments
     """
-    parser = argparse.ArgumentParser(
-        description="MCP Client for sentiment analysis using specified transport"
-    )
+    parser = argparse.ArgumentParser(description="MCP Client for sentiment analysis using specified transport")
     parser.add_argument("text", help="Text to analyze for sentiment")
     parser.add_argument(
         "--endpoint",
         default="mcp-sentiment/app_fastmcp.py",
-        help=("Endpoint for the MCP server. Python module for stdio, sse (*/sse) or "
-              "streamable-http (*/mcp) (default: mcp-sentiment/app_fastmcp.py)"),
-        )
+        help=(
+            "Endpoint for the MCP server. Python module for stdio, sse (*/sse) or "
+            "streamable-http (*/mcp) (default: mcp-sentiment/app_fastmcp.py)"
+        ),
+    )
     parser.add_argument(
         "--verbose",
         "-v",
