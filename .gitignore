@@ -118,3 +118,7 @@ cython_debug/
 venv/
 ENV/
 env/
+
+# local development database files
+*.db
+*.sqlite3
