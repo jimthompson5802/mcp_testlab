@@ -192,7 +192,144 @@ The Swim Rules Agent is a web-based application that provides officials with qui
 - **Requirement**: Ingest USA swimming rules and regulations from PDF documents into a vector database for semantic search.
 - **Acceptance Criteria**:
   - Create embedding vectors for all ingested rules
-  - Create a metadata related to the ingested rules (e.g., stroke, rule identifer))   
+  - Create a metadata related to the ingested rules (e.g., stroke, rule identifier)
+  - Example of rule identifiers in the following sample text are
+    - `101.1`
+    - `101.1.1`
+    - `101.1.2A`
+    - `101.1.2B`
+    - `101.2`
+    - `102.2.1`
+    - `102.2.2`
+    - `102.2.3`
+
+```text
+101.1 STARTS
+.1 Equipment — A loudspeaker start system conforming to 103.18, with or without
+an underwater recall device, and an electronic strobe signal visible to all manual
+timers for forward and backstroke starts, shall be the preferred starting device.
+.2 The Start
+A Once all swimmers have removed their clothing, except for swimwear, the
+Referee shall signal the commencement of an event by a short series of
+whistles inviting them to get ready at the starting end, followed by a long
+whistle indicating that they should take and maintain their positions on the
+starting platform, the deck, or in the water. In backstroke and medley relay
+events, at the Referee’s first long whistle, the swimmers shall immediately
+enter the water and at the second long whistle shall return without undue
+delay to the starting position.
+Except as otherwise noted, all provisions in this Rulebook are effective immediately.
+Rules in effect on the first day of a meet shall govern throughout that
+meet.
+20
+101.1
+B When the swimmers and officials are ready, the Referee shall signal with
+an outstretched arm to the Starter that the swimmers are under the Starter’s
+control.
+C On the Starter’s command “take your marks,” the swimmers shall immediately
+assume their starting position, in the forward start, with at least one
+foot at the front of the starting platform or the deck. Swimmers starting in
+the water must have at least one hand in contact with the wall or starting
+platform. When all swimmers are stationary, the Starter shall give the starting
+signal.
+D When a swimmer does not respond promptly to the command "take your
+marks," the Starter shall immediately release all swimmers with a "stand"
+command upon which the swimmers may stand up or step off the blocks.
+E A swimmer shall not be disqualified for an illegal starting position at the
+start if the race is permitted to proceed. Enforcement of the correct starting
+position is the responsibility of the Starter.
+.3 False Starts
+A Any swimmer initiating a start before the signal may be disqualified if the
+Referee independently observes and confirms the Starter’s observation
+that a violation occurred. Swimmers remaining on the starting blocks shall
+be relieved from their starting positions with a "stand" command and may
+step off the blocks.
+B If the starting signal has been given before the disqualification is declared,
+the race shall continue without recall. If the Referee independently
+observes and confirms the Starter’s observation that a violation occurred,
+the swimmer or swimmers who have false started shall be disqualified
+upon completion of the race.
+C If the recall signal is activated, no swimmer shall be charged with a false
+start and the Starter shall restart the race upon signal by the Referee.
+D A swimmer who would otherwise be charged with a false start may be
+relieved of the charge if the false start was caused by the swimmer’s reaction
+to a “stand” command.
+E Declared false start: swimmers reporting to the Referee prior to the start of
+their race and declaring their intent not to compete shall be disqualified
+except as noted in 207.11.6D(1).
+.4 Warning Signal — With the exception of relays, in events 500 yards or longer, the
+Starter or a designee shall sound a warning signal over the water at the finish end
+of the lane of the leading swimmer when that swimmer has two lengths plus five
+yards or five meters to swim. As an alternative, a bell warning signal may be given
+over each lane by a lane judge or timer for that lane.
+21
+1
+101.1
+.5 Deliberate Delay or Misconduct
+A The Starter shall report a swimmer to the Referee for delaying the start, for
+willfully disobeying an order or for any other misconduct taking place at the
+start, but only the Referee may disqualify a swimmer for such delay, willful
+disobedience or misconduct.
+B The Referee shall disqualify a swimmer who fails to appear at the starting
+platform ready to swim in time for the initial start of his/her heat.
+C Such disqualification shall not be charged as a false start.
+101.2 BREASTSTROKE
+.1 Start — The forward start shall be used.
+.2 Stroke — After the start and after each turn when the swimmer leaves the wall,
+the body shall be kept on the breast. It is not permitted to roll onto the back at any
+time except at the turn after the touch of the wall where it is permissible to turn in
+any manner as long as the body is on the breast when leaving the wall. Throughout
+the race the stroke cycle must be one arm stroke and one leg kick in that order.
+All movements of the arms shall be simultaneous without alternating movement.
+The hands shall be pushed forward together from the breast on, under, or over the
+water.
+The elbows shall be under water except for the final stroke before the turn, during
+the turn and for the final stroke at the finish. The hands shall be brought back on or
+under the surface of the water. The hands shall not be brought back beyond the
+hip line, except during the first stroke after the start and each turn.
+During each complete cycle, some part of the swimmer’s head shall break the surface
+of the water. After the start and after each turn, the swimmer may take one
+arm stroke completely back to the legs. The head must break the surface of the
+water before the hands turn inward at the widest part of the second stroke.
+.3 Kick — After the start and each turn, at any time prior to the first breaststroke kick,
+a single butterfly kick is permitted. Following which, all movements of the legs shall
+be simultaneous without alternating movement.
+The feet must be turned outwards during the propulsive part of the kick. Scissors,
+alternating movements or downward butterfly kicks are not permitted except as provided
+herein. Breaking the surface of the water with the feet is allowed unless followed
+by a downward butterfly kick.
+.4 Turns and Finish — At each turn and at the finish of the race, the touch shall be
+made with both hands separated and simultaneously at, above, or below the water
+level. At the last stroke before the turn and at the finish, an arm stroke not followed
+22
+101.2
+by a leg kick is permitted. The head may be submerged after the last arm pull prior
+to the touch, provided it breaks the surface of the water at some point during the
+last complete or incomplete cycle preceding the touch.
+101.3 BUTTERFLY
+.1 Start — The forward start shall be used.
+.2 Stroke — After the start and after each turn, the swimmer’s body must be on the
+breast. The swimmer is permitted one or more leg kicks, but only one arm pull
+under water, which must bring the swimmer to the surface. It shall be permissible
+for a swimmer to be completely submerged for a distance of not more than 15
+meters (16.4 yards) after the start and after each turn. By that point, the head
+must have broken the surface. The swimmer must remain on the surface until the
+next turn or finish. From the beginning of the first arm pull, the body shall be kept
+on the breast except at the turn after the touch of the wall where it is permissible
+to turn in any manner as long as the body is on the breast when leaving the wall.
+Both arms must be brought forward simultaneously over the water and pulled back
+simultaneously under the water throughout the race.
+.3 Kick — All up and down movements of the legs and feet must be simultaneous.
+The position of the legs or the feet need not be on the same level, but they shall
+not alternate in relation to each other. A scissors or breaststroke kicking movement
+is not permitted.
+.4 Turns — At each turn the body shall be on the breast. The touch shall be made
+with both hands separated and simultaneously at, above, or below the water surface.
+Once a touch has been made, the swimmer may turn in any manner desired
+as long as the body is on the breast when leaving the wall.
+.5 Finish — At the finish, the body shall be on the breast and the touch shall be
+made with both hands separated and simultaneously at, above, or below the water
+surface.
+```   
 
 ## 5. Technical Requirements
 
