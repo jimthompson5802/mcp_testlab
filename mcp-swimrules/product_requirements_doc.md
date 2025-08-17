@@ -243,7 +243,7 @@ The Swim Rules Agent is a web-based application that provides officials with qui
 - **Programming Language**: Python 3.11+ with asyncio for concurrent operations
 - **Web Framework**: FastAPI for high-performance async API endpoints
 - **MCP Integration**: FastMCP Python SDK with async RAG-enhanced tools
-- **Database**: SQLite3 with aiosqlite for async operations + sqlite-vec extension for vector similarity search
+- **Vector Database**: ChromaDB for vector embeddings and similarity search
 - **Frontend**: React or Vue.js for interactive UI with async semantic search components
 - **Transport**: HTTP-based MCP transport with async connection handling
 - **Async Components**:
@@ -253,7 +253,7 @@ The Swim Rules Agent is a web-based application that provides officials with qui
   - Connection pooling for database async operations
 - **RAG Components**: 
   - Async embedding model interfaces (e.g., sentence-transformers, OpenAI embeddings)
-  - SQLite-vec for vector embeddings and similarity search
+  - ChromaDB for vector embeddings and similarity search
   - Async retrieval system with concurrent similarity ranking
   - Async context augmentation pipeline with streaming responses
 
@@ -266,33 +266,33 @@ The Swim Rules Agent is a web-based application that provides officials with qui
 - **Async Programming**: Proper use of async/await patterns and AsyncExitStack for resource management
 
 ### 5.3 Async-Specific Requirements
-- **Concurrent Request Handling**: Support 100+ simultaneous async requests with SQLite connection pooling
-- **Non-blocking Operations**: All database and MCP operations must be async/await compatible using aiosqlite
+- **Concurrent Request Handling**: Support 100+ simultaneous async requests with ChromaDB connection pooling
+- **Non-blocking Operations**: All MCP operations must be async/await compatible using async ChromaDB client
 - **Background Task Processing**: Async queue processing for rule updates and embedding generation
 - **Async Resource Management**: Use AsyncExitStack for proper cleanup of async resources
 - **Streaming Responses**: Support async streaming for large rule analysis results
-- **Connection Pooling**: Async SQLite connection pools with configurable limits
+- **Connection Pooling**: Async ChromaDB client with configurable connection limits
 
 ### 5.4 RAG-Specific Requirements
-- **Async Embedding Generation**: Non-blocking embedding creation for new rules using SQLite transactions
-- **Concurrent Vector Search**: Parallel similarity search across 10,000+ rule embeddings using sqlite-vec
-- **Async Context Retrieval**: Non-blocking retrieval of top-k (3-5) most relevant rule contexts
+- **Async Embedding Generation**: Non-blocking embedding creation for new rules using ChromaDB async operations
+- **Concurrent Vector Search**: Parallel similarity search across 10,000+ rule embeddings using ChromaDB query API
+- **Async Context Retrieval**: Non-blocking retrieval of top-k (3-5) most relevant rule contexts from ChromaDB
 - **Streaming Response Augmentation**: Async integration of retrieved context into streaming responses
-- **Async Embedding Quality Validation**: Background validation maintaining cosine similarity > 0.8
+- **Async Embedding Quality Validation**: Background validation maintaining cosine similarity > 0.8 using ChromaDB distance metrics
 
 ### 5.5 Performance Requirements
 - Async rule lookup response time: < 2 seconds with concurrent handling
 - Async complex analysis completion: < 10 seconds with parallel processing
-- Support 100 concurrent async users without blocking (SQLite handles multiple readers efficiently)
+- Support 100 concurrent async users without blocking (ChromaDB handles concurrent reads efficiently)
 - 99.9% uptime during training periods with async health checks
 - Async database update processing: < 5 minutes with background tasks
 
 ### 5.6 Deployment Requirements
-- **Local Deployment**: Docker containerization with SQLite database file mounting
-- **Cloud Readiness**: Environment-agnostic async configuration with SQLite file backup to cloud storage
-- **Async Scalability**: Horizontal scaling support with SQLite file replication
+- **Local Deployment**: Docker containerization with ChromaDB persistence
+- **Cloud Readiness**: Environment-agnostic async configuration with ChromaDB cloud storage
+- **Async Scalability**: Horizontal scaling support with ChromaDB distributed deployment
 - **Async Monitoring**: Application and performance monitoring with async metrics collection
-- **Async Backup**: Automated SQLite database backup system with non-blocking file operations
+- **Async Backup**: Automated ChromaDB collection backup
 
 ### 5.7 PDF Rule Ingestion Requirements
 - **PDF Processing**: Python-based automated extraction using pdfplumber library
@@ -307,11 +307,12 @@ The Swim Rules Agent is a web-based application that provides officials with qui
 ### 8.1 PDF Rule Ingestion Pipeline (Python Implementation)
 
 ```python
-# PDF Rule Ingestion Pipeline with async processing
+# PDF Rule Ingestion Pipeline with async processing and ChromaDB integration
 from fastmcp import FastMCP
 from typing import List, Dict, Optional, Tuple
 import asyncio
-import aiosqlite
+import chromadb
+from chromadb.utils import embedding_functions
 import pdfplumber
 import re
 import json
@@ -368,21 +369,25 @@ class IngestionStatus:
     status: str  # 'processing', 'completed', 'failed'
 
 class PdfRuleIngestionPipeline:
-    """Async PDF rule ingestion pipeline for USA Swimming rules
+    """Async PDF rule ingestion pipeline for USA Swimming rules with ChromaDB integration
     
     This class handles the complete pipeline for extracting, parsing, validating,
     and storing USA Swimming rules from PDF documents into a SQLite database
-    with vector embeddings for semantic search.
+    with vector embeddings stored in ChromaDB for semantic search.
     """
     
-    def __init__(self, db_path: str = "swim_rules.db") -> None:
+    def __init__(self, chroma_path: str = "./chroma_db") -> None:
         """Initialize the PDF ingestion pipeline
-        
+
         Args:
-            db_path: Path to the SQLite database file
+            chroma_path: Path to ChromaDB persistence directory
         """
-        self.db_path = db_path
-        self.embedding_service = None
+        self.chroma_path = chroma_path
+        self.chroma_client = None
+        self.chroma_collection = None
+        self.embedding_function = embedding_functions.SentenceTransformerEmbeddingFunction(
+            model_name="all-MiniLM-L6-v2"
+        )
         self.rule_patterns = {
             'rule_number': re.compile(r'^(\d+(?:\.\d+)*)\s+([A-Z][^.]*?)(?:\s*—\s*(.*))?$'),
             'section_header': re.compile(r'^ARTICLE\s+(\d+)\s*[—-]\s*(.+)$'),
@@ -392,13 +397,18 @@ class PdfRuleIngestionPipeline:
     
     async def __aenter__(self):
         """Async context manager entry"""
-        self.embedding_service = await AsyncEmbeddingService().connect()
+        self.chroma_client = chromadb.PersistentClient(path=self.chroma_path)
+        self.chroma_collection = self.chroma_client.get_or_create_collection(
+            name="swim_rules",
+            embedding_function=self.embedding_function,
+            metadata={"description": "USA Swimming rules and regulations"}
+        )
         return self
     
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         """Async context manager cleanup"""
-        if self.embedding_service:
-            await self.embedding_service.close()
+        # ChromaDB client automatically handles cleanup
+        pass
     
     async def ingest_pdf(self, pdf_path: Path, version: int = 1) -> IngestionStatus:
         """
@@ -427,11 +437,8 @@ class PdfRuleIngestionPipeline:
             # Validate parsed rules
             validated_rules = await self._validate_rules(parsed_rules, status)
             
-            # Store rules in database
-            await self._store_rules(validated_rules, version, status)
-            
-            # Generate embeddings
-            await self._generate_embeddings(validated_rules, status)
+            # Generate embeddings and store in ChromaDB
+            await self._generate_and_store_embeddings(validated_rules, status)
             
             status.status = 'completed'
             
@@ -594,40 +601,59 @@ class PdfRuleIngestionPipeline:
         
         return validated_rules
     
-    async def _store_rules(self, rules: List[RuleData], version: int, status: IngestionStatus):
-        """Store validated rules in SQLite database"""
-        async with aiosqlite.connect(self.db_path) as db:
-            # Begin transaction for atomic updates
-            await db.execute("BEGIN TRANSACTION")
+    async def _generate_and_store_embeddings(self, rules: List[RuleData], status: IngestionStatus):
+        """Generate embeddings and store in ChromaDB"""
+        try:
+            # Prepare data for ChromaDB
+            documents = []
+            metadatas = []
+            ids = []
             
-            try:
-                # Clear existing rules for this version
-                await db.execute("DELETE FROM rules WHERE version = ?", (version,))
+            for rule in rules:
+                # Combine rule title and text for embedding
+                document_text = f"{rule.rule_title}\n{rule.rule_text}"
+                documents.append(document_text)
                 
-                # Insert new rules
-                rule_tuples = [
-                    (
-                        rule.rule_id, rule.rule_number, rule.rule_text, rule.category,
-                        rule.effective_date, version, rule.rule_title, rule.section
-                    )
-                    for rule in rules
-                ]
+                metadatas.append({
+                    "rule_number": rule.rule_number,
+                    "rule_title": rule.rule_title,
+                    "category": rule.category,
+                    "section": rule.section,
+                    "version": rule.version,
+                    "effective_date": rule.effective_date or ""
+                })
                 
-                await db.executemany("""
-                    INSERT INTO rules (rule_id, rule_number, rule_text, category, 
-                                     effective_date, version, rule_title, section)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                """, rule_tuples)
+                ids.append(rule.rule_id)
+            
+            # Clear existing rules for this version from ChromaDB
+            existing_ids = self.chroma_collection.get(
+                where={"version": rules[0].version}
+            )["ids"]
+            
+            if existing_ids:
+                self.chroma_collection.delete(ids=existing_ids)
+            
+            # Add new embeddings to ChromaDB in batches
+            batch_size = 100
+            for i in range(0, len(documents), batch_size):
+                batch_docs = documents[i:i + batch_size]
+                batch_metas = metadatas[i:i + batch_size]
+                batch_ids = ids[i:i + batch_size]
                 
-                # Update full-text search index
-                await db.execute("INSERT INTO rules_fts(rules_fts) VALUES('rebuild')")
+                self.chroma_collection.add(
+                    documents=batch_docs,
+                    metadatas=batch_metas,
+                    ids=batch_ids
+                )
                 
-                await db.execute("COMMIT")
-                
-            except Exception as e:
-                await db.execute("ROLLBACK")
-                status.errors.append(f"Database storage error: {str(e)}")
-                raise
+                # Yield control for async processing
+                await asyncio.sleep(0)
+            
+            status.processed_rules = len(rules)
+            
+        except Exception as e:
+            status.errors.append(f"ChromaDB embedding storage error: {str(e)}")
+            raise
 
 # MCP tool for PDF ingestion
 app = FastMCP("swim-rules-agent")
@@ -658,69 +684,11 @@ async def ingest_pdf_rules(pdf_path: str, version: int = 1) -> Dict[str, any]:
             "processing_time": asyncio.get_event_loop().time() - status.start_time
         }
 
-@app.tool("validate_pdf_structure")
-async def validate_pdf_structure(pdf_path: str) -> Dict[str, any]:
-    """
-    Validate PDF structure before ingestion
-    
-    Args:
-        pdf_path: Path to the PDF file to validate
-        
-    Returns:
-        Dict: Validation results and recommendations
-    """
-    validation_results = {
-        "is_valid": False,
-        "page_count": 0,
-        "has_text": False,
-        "has_structure": False,
-        "estimated_rules": 0,
-        "warnings": [],
-        "recommendations": []
-    }
-    
-    try:
-        with pdfplumber.open(pdf_path) as pdf:
-            validation_results["page_count"] = len(pdf.pages)
-            
-            # Check first few pages for text content
-            text_content = ""
-            for i, page in enumerate(pdf.pages[:5]):
-                text_content += page.extract_text() or ""
-            
-            validation_results["has_text"] = len(text_content.strip()) > 100
-            
-            # Check for rule structure patterns
-            rule_pattern = re.compile(r'^\d+(?:\.\d+)*\s+[A-Z]', re.MULTILINE)
-            rule_matches = rule_pattern.findall(text_content)
-            validation_results["estimated_rules"] = len(rule_matches)
-            validation_results["has_structure"] = len(rule_matches) > 0
-            
-            # Generate recommendations
-            if not validation_results["has_text"]:
-                validation_results["warnings"].append("PDF appears to contain no extractable text")
-                validation_results["recommendations"].append("Ensure PDF is text-based, not scanned images")
-            
-            if not validation_results["has_structure"]:
-                validation_results["warnings"].append("No rule structure detected in sample pages")
-                validation_results["recommendations"].append("Verify this is a USA Swimming rules document")
-            
-            validation_results["is_valid"] = (
-                validation_results["has_text"] and 
-                validation_results["has_structure"] and
-                validation_results["page_count"] > 10
-            )
-            
-    except Exception as e:
-        validation_results["warnings"].append(f"PDF validation error: {str(e)}")
-    
-    return validation_results
-
-# Additional MCP tools with proper Python typing
+# Additional MCP tools with ChromaDB integration
 @app.tool("search_rules")
 async def search_rules(query: str, category: Optional[str] = None, use_semantic: bool = True) -> Dict[str, any]:
-    """Search USA Swimming rules by query with optional semantic search using async SQLite operations
-    
+    """Search USA Swimming rules by query with optional semantic search using async ChromaDB operations
+
     Args:
         query: Search query string
         category: Optional category filter
@@ -729,224 +697,155 @@ async def search_rules(query: str, category: Optional[str] = None, use_semantic:
     Returns:
         Dict: Search results with rule matches
     """
-    async with aiosqlite.connect("swim_rules.db") as db:
-        # Enable sqlite-vec extension for vector search
-        await db.enable_load_extension(True)
-        await db.load_extension("vec0")
+    if use_semantic:
+        # ChromaDB semantic search
+        client = chromadb.PersistentClient(path="./chroma_db")
+        collection = client.get_collection("swim_rules")
         
-        if use_semantic:
-            # Vector similarity search using sqlite-vec
-            cursor = await db.execute("""
-                SELECT rule_id, rule_text, distance 
-                FROM vec_rules 
-                WHERE vec_search(embedding, ?)
-                ORDER BY distance ASC
-                LIMIT 5
-            """, (query,))
-        else:
-            # Traditional full-text search
-            cursor = await db.execute("""
-                SELECT rule_id, rule_text 
-                FROM rules_fts 
-                WHERE rules_fts MATCH ? 
-                ORDER BY rank
-            """, (query,))
+        where_filter = {"category": category} if category else None
         
-        results = await cursor.fetchall()
-        return {"results": results, "count": len(results)}
-
-@app.tool("validate_scenario")
-async def validate_scenario(scenario: str, use_rag: bool = True) -> ViolationAnalysis:
-    """Analyze swimming scenario for rule violations with RAG-enhanced interpretation using async SQLite processing"""
-    async with AsyncExitStack() as stack:
-        # Async resource management with SQLite connections
-        db = await stack.enter_async_context(aiosqlite.connect(DATABASE_PATH))
-        await db.enable_load_extension(True)
-        await db.load_extension("vec0")
+        results = collection.query(
+            query_texts=[query],
+            n_results=5,
+            where=where_filter
+        )
         
-        # Concurrent processing of multiple rule checks
-        tasks = [
-            check_stroke_violations(db, scenario),
-            check_timing_violations(db, scenario), 
-            check_equipment_violations(db, scenario)
-        ]
-        results = await asyncio.gather(*tasks)
-        return aggregate_analysis(results)
-
-@app.tool("get_regulation_compliance") 
-async def get_regulation_compliance(meet_type: str) -> ComplianceChecklist:
-    """Get compliance requirements for specific meet types using async SQLite queries"""
-    async with aiosqlite.connect(DATABASE_PATH) as db:
-        cursor = await db.execute("""
-            SELECT requirement_id, requirement_text, category
-            FROM compliance_requirements 
-            WHERE meet_type = ? OR meet_type = 'all'
-            ORDER BY priority DESC
-        """, (meet_type,))
+        formatted_results = []
+        for i, doc in enumerate(results["documents"][0]):
+            formatted_results.append({
+                "rule_id": results["ids"][0][i],
+                "rule_text": doc,
+                "metadata": results["metadatas"][0][i],
+                "distance": results["distances"][0][i]
+            })
         
-        requirements = await cursor.fetchall()
-        return ComplianceChecklist(requirements=requirements)
+        return {"results": formatted_results, "count": len(formatted_results)}
+    else:
+        # Full-text search not supported without SQLite
+        return {"results": [], "count": 0}
 
 @app.tool("semantic_search")
-async def semantic_search(query: str, top_k: int = 5) -> List[RuleMatch]:
-    """Perform vector-based semantic search across rule embeddings with async SQLite operations"""
-    async with aiosqlite.connect(DATABASE_PATH) as db:
-        await db.enable_load_extension(True)
-        await db.load_extension("vec0")
-        
-        cursor = await db.execute("""
-            SELECT rule_id, rule_text, rule_number, distance 
-            FROM vec_rules 
-            WHERE vec_search(embedding, ?)
-            ORDER BY distance ASC
-            LIMIT ?
-        """, (query, top_k))
-        
-        matches = await cursor.fetchall()
-        return [RuleMatch(rule_id=m[0], text=m[1], number=m[2], similarity=1-m[3]) for m in matches]
+async def semantic_search(query: str, top_k: int = 5) -> List[Dict[str, any]]:
+    """Perform vector-based semantic search across rule embeddings using ChromaDB"""
+    client = chromadb.PersistentClient(path="./chroma_db")
+    collection = client.get_collection("swim_rules")
+    
+    results = collection.query(
+        query_texts=[query],
+        n_results=top_k
+    )
+    
+    matches = []
+    for i, doc in enumerate(results["documents"][0]):
+        matches.append({
+            "rule_id": results["ids"][0][i],
+            "text": doc,
+            "metadata": results["metadatas"][0][i],
+            "similarity": 1 - results["distances"][0][i]  # Convert distance to similarity
+        })
+    
+    return matches
 
 @app.tool("get_rule_context")
-async def get_rule_context(rule_id: str) -> RuleContext:
-    """Retrieve contextual information and historical interpretations for a rule using async SQLite operations"""
-    async with aiosqlite.connect(DATABASE_PATH) as db:
-        # Get rule details and related context
-        cursor = await db.execute("""
-            SELECT r.rule_text, r.rule_number, r.category,
-                   GROUP_CONCAT(ri.interpretation_text) as interpretations,
-                   GROUP_CONCAT(rr.related_rule_id) as related_rules
-            FROM rules r
-            LEFT JOIN rule_interpretations ri ON r.rule_id = ri.rule_id
-            LEFT JOIN rule_relationships rr ON r.rule_id = rr.rule_id
-            WHERE r.rule_id = ?
-            GROUP BY r.rule_id
-        """, (rule_id,))
+async def get_rule_context(rule_id: str) -> Dict[str, any]:
+    """Retrieve contextual information and historical interpretations for a rule using ChromaDB"""
+    # Get rule details from ChromaDB
+    client = chromadb.PersistentClient(path="./chroma_db")
+    collection = client.get_collection("swim_rules")
+    rule_doc = collection.get(ids=[rule_id])
+    
+    if rule_doc["documents"]:
+        related_results = collection.query(
+            query_texts=[rule_doc["documents"][0]],
+            n_results=6,  # Get 6 to exclude the original rule
+            where={"rule_number": {"$ne": rule_doc["metadatas"][0]["rule_number"]}}
+        )
         
-        context = await cursor.fetchone()
-        return RuleContext.from_tuple(context)
+        related_rules = []
+        for i, doc in enumerate(related_results["documents"][0][:5]):  # Take top 5
+            related_rules.append({
+                "rule_id": related_results["ids"][0][i],
+                "rule_number": related_results["metadatas"][0][i]["rule_number"],
+                "similarity": 1 - related_results["distances"][0][i]
+            })
+    else:
+        related_rules = []
+    
+    return {
+        "rule_data": rule_doc,
+        "related_rules": related_rules
+    }
 
 @app.tool("background_update_rules")
-async def background_update_rules() -> UpdateStatus:
-    """Handle rule updates in background using async SQLite task processing"""
+async def background_update_rules() -> Dict[str, any]:
+    """Handle rule updates in background using async ChromaDB task processing"""
     # Schedule background task for rule updates
     task = asyncio.create_task(update_rules_async())
     return {"status": "processing", "task_id": id(task)}
 
-# Async helper functions for SQLite operations
-async def check_stroke_violations(db: aiosqlite.Connection, scenario: str) -> List[Violation]:
-    """Async stroke violation checking using SQLite"""
-    cursor = await db.execute("""
-        SELECT violation_id, violation_text, severity
-        FROM stroke_violations sv
-        JOIN rules r ON sv.rule_id = r.rule_id
-        WHERE ? LIKE '%' || sv.trigger_pattern || '%'
-    """, (scenario,))
-    
-    violations = await cursor.fetchall()
-    return [Violation(id=v[0], text=v[1], severity=v[2]) for v in violations]
-
-async def check_timing_violations(db: aiosqlite.Connection, scenario: str) -> List[Violation]:
-    """Async timing violation checking using SQLite"""
-    cursor = await db.execute("""
-        SELECT violation_id, violation_text, severity
-        FROM timing_violations tv
-        JOIN rules r ON tv.rule_id = r.rule_id
-        WHERE ? LIKE '%' || tv.trigger_pattern || '%'
-    """, (scenario,))
-    
-    violations = await cursor.fetchall()
-    return [Violation(id=v[0], text=v[1], severity=v[2]) for v in violations]
-
-async def check_equipment_violations(db: aiosqlite.Connection, scenario: str) -> List[Violation]:
-    """Async equipment violation checking using SQLite"""
-    cursor = await db.execute("""
-        SELECT violation_id, violation_text, severity
-        FROM equipment_violations ev
-        JOIN rules r ON ev.rule_id = r.rule_id
-        WHERE ? LIKE '%' || ev.trigger_pattern || '%'
-    """, (scenario,))
-    
-    violations = await cursor.fetchall()
-    return [Violation(id=v[0], text=v[1], severity=v[2]) for v in violations]
-
+# Async helper functions for ChromaDB operations
 async def update_rules_async() -> None:
-    """Background async rule update processing with SQLite
+    """Background async rule update processing with ChromaDB
     
     This function handles the complete rule update process including
-    database transactions, embedding regeneration, and error handling.
+    embedding regeneration and error handling.
     """
-    async with aiosqlite.connect("swim_rules.db") as db:
-        # Begin transaction for atomic updates
-        await db.execute("BEGIN TRANSACTION")
-        try {
-            # Update rules and regenerate embeddings
-            await db.execute("DELETE FROM rules WHERE version < ?", (2,))  # Example version
-            # await db.executemany("INSERT INTO rules VALUES (?, ?, ?, ?)", new_rules)
-            
-            # Update vector embeddings
-            await db.enable_load_extension(True)
-            await db.load_extension("vec0")
-            await db.execute("DELETE FROM vec_rules")
-            # await db.executemany("INSERT INTO vec_rules VALUES (?, ?)", rule_embeddings)
-            
-            await db.execute("COMMIT")
-        } catch Exception as e {
-            await db.execute("ROLLBACK")
-            raise e
-        }
-    }
-}
+    # Example: Clear old version embeddings
+    client = chromadb.PersistentClient(path="./chroma_db")
+    collection = client.get_collection("swim_rules")
+    old_ids = collection.get(where={"version": {"$lt": 2}})["ids"]
+    if old_ids:
+        collection.delete(ids=old_ids)
+    # Add new embeddings would go here
+    # collection.add(documents=new_documents, metadatas=new_metadatas, ids=new_ids)
 ```
 
 ### 8.2 Python Async RAG Pipeline Architecture
 
 ```python
-# Async RAG Pipeline Implementation with SQLite using Python
+# Async RAG Pipeline Implementation with ChromaDB using Python
 from typing import List, Optional, Dict, Any
 import asyncio
-import aiosqlite
+import chromadb
+from chromadb.utils import embedding_functions
 from contextlib import AsyncExitStack
 
-class AsyncSQLiteRAGPipeline:
-    """Python-based async RAG pipeline for swim rules analysis
+class AsyncChromaRAGPipeline:
+    """Python-based async RAG pipeline for swim rules analysis with ChromaDB
     
     This class implements a Retrieval-Augmented Generation pipeline
-    using SQLite with vector extensions for semantic search and
-    context retrieval in swimming rule analysis.
+    using ChromaDB for vector embeddings and similarity search.
     """
     
-    def __init__(self, db_path: str = "swim_rules.db") -> None:
+    def __init__(self, chroma_path: str = "./chroma_db") -> None:
         """Initialize the RAG pipeline
-        
+
         Args:
-            db_path: Path to the SQLite database file
+            chroma_path: Path to ChromaDB persistence directory
         """
-        self.db_path = db_path
-        self.embedding_service: Optional[Any] = None
-        self.db_connection: Optional[aiosqlite.Connection] = None
+        self.chroma_path = chroma_path
+        self.chroma_client = None
+        self.chroma_collection = None
+        self.embedding_function = embedding_functions.SentenceTransformerEmbeddingFunction(
+            model_name="all-MiniLM-L6-v2"
+        )
     
     async def __aenter__(self):
-        """Async context manager entry with SQLite connection"""
-        self.db_connection = await aiosqlite.connect(self.db_path)
-        await self.db_connection.enable_load_extension(True)
-        await self.db_connection.load_extension("vec0")
-        
-        # Configure SQLite for optimal performance
-        await self.db_connection.execute("PRAGMA journal_mode=WAL")
-        await self.db_connection.execute("PRAGMA synchronous=NORMAL")
-        await self.db_connection.execute("PRAGMA cache_size=10000")
-        
-        self.embedding_service = await AsyncEmbeddingService().connect()
+        """Async context manager entry with ChromaDB connection"""
+        self.chroma_client = chromadb.PersistentClient(path=self.chroma_path)
+        self.chroma_collection = self.chroma_client.get_or_create_collection(
+            name="swim_rules",
+            embedding_function=self.embedding_function
+        )
         return self
     
     async def __aexit__(self, exc_type, exc_val, exc_tb):
         """Async context manager cleanup"""
-        if self.embedding_service:
-            await self.embedding_service.close()
-        if self.db_connection:
-            await self.db_connection.close()
+        # ChromaDB client automatically handles cleanup
+        pass
     
     async def process_query(self, query: str) -> Dict[str, Any]:
-        """Async RAG query processing with concurrent SQLite operations
+        """Async RAG query processing with concurrent ChromaDB operations
         
         Args:
             query: User query for rule analysis
@@ -954,85 +853,71 @@ class AsyncSQLiteRAGPipeline:
         Returns:
             Dict: Enhanced response with retrieved context
         """
-        # Concurrent embedding generation and similarity search
-        embedding_task = asyncio.create_task(self.embedding_service.embed(query))
-        
-        embedding = await embedding_task
-        
-        # Concurrent context retrieval using SQLite
-        similarity_task = asyncio.create_task(self._similarity_search(embedding))
+        # Concurrent similarity search using ChromaDB
+        similarity_task = asyncio.create_task(self._similarity_search(query))
         
         similar_contexts = await similarity_task
         
         # Async response augmentation
         return await self.augment_response(query, similar_contexts)
     
-    async def _similarity_search(self, embedding: List[float]) -> List[Dict[str, Any]]:
-        """Perform vector similarity search using sqlite-vec
+    async def _similarity_search(self, query: str) -> List[Dict[str, Any]]:
+        """Perform vector similarity search using ChromaDB
         
         Args:
-            embedding: Vector embedding for similarity search
+            query: Query text for similarity search
             
         Returns:
             List of rule contexts with similarity scores
         """
-        cursor = await self.db_connection.execute("""
-            SELECT rule_id, rule_text, distance 
-            FROM vec_rules 
-            WHERE vec_search(embedding, ?)
-            ORDER BY distance ASC
-            LIMIT 5
-        """, (embedding,))
+        results = self.chroma_collection.query(
+            query_texts=[query],
+            n_results=5
+        )
         
-        results = await cursor.fetchall()
-        return [{"id": r[0], "text": r[1], "similarity": 1-r[2]} for r in results]
+        contexts = []
+        for i, doc in enumerate(results["documents"][0]):
+            contexts.append({
+                "id": results["ids"][0][i],
+                "text": doc,
+                "metadata": results["metadatas"][0][i],
+                "similarity": 1 - results["distances"][0][i]  # Convert distance to similarity
+            })
+        
+        return contexts
+    
+    async def augment_response(self, query: str, contexts: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Augment response with retrieved context from ChromaDB"""
+        # Combine query with retrieved contexts
+        augmented_response = {
+            "query": query,
+            "relevant_rules": contexts,
+            "confidence": self._calculate_confidence(contexts),
+            "citations": [ctx["metadata"]["rule_number"] for ctx in contexts]
+        }
+        
+        return augmented_response
+    
+    def _calculate_confidence(self, contexts: List[Dict[str, Any]]) -> float:
+        """Calculate confidence score based on similarity scores"""
+        if not contexts:
+            return 0.0
+        
+        # Use highest similarity score as base confidence
+        max_similarity = max(ctx["similarity"] for ctx in contexts)
+        return min(max_similarity * 100, 95.0)  # Cap at 95%
 ```
 
-### 8.3 Python SQLite Database Schema
+### 8.3 Python Database Schema (ChromaDB Only)
 
-```sql
--- SQLite database schema for Python-based swim rules application
-
--- Core rules table (simplified)
-CREATE TABLE rules (
-    rule_id TEXT PRIMARY KEY,
-    rule_number TEXT NOT NULL,
-    rule_text TEXT NOT NULL,
-    category TEXT NOT NULL,
-    version INTEGER DEFAULT 1,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- Vector embeddings table using sqlite-vec (primary focus)
-CREATE VIRTUAL TABLE vec_rules USING vec0(
-    embedding float[1536],  -- Dimension for OpenAI embeddings
-    rule_id TEXT PRIMARY KEY,
-    rule_text TEXT,
-    rule_number TEXT
-);
-
--- Performance indexes
-CREATE INDEX idx_rules_category ON rules(category);
-CREATE INDEX idx_rules_version ON rules(version);
+```text
+-- ChromaDB Configuration (handled in Python code):
+-- - Collection: "swim_rules"
+-- - Embedding function: SentenceTransformerEmbeddingFunction
+-- - Metadata: rule_number, rule_title, category, section, version, effective_date
+-- - Documents: Combined rule_title + rule_text for embedding
+-- - IDs: rule_id
 ```
-
-### 8.4 Python Development Environment Requirements
-
-- **Python Version**: 3.11+ with typing support
-- **Required Packages**:
-  - `fastmcp`: MCP server and client functionality
-  - `fastapi`: Web framework for REST API
-  - `aiosqlite`: Async SQLite database operations
-  - `pdfplumber`: PDF text extraction
-  - `sqlite-vec`: Vector similarity search extension
-  - `asyncio`: Built-in async/await support
-- **Development Tools**:
-  - `pytest`: Testing framework
-  - `black`: Code formatting
-  - `mypy`: Static type checking
-  - `ruff`: Fast Python linter
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-
 
 ### 8.4 Python Development Environment Requirements
 
@@ -1041,12 +926,13 @@ CREATE INDEX idx_rules_version ON rules(version);
 - **Required Packages**:
   - `fastmcp`: MCP server and client functionality
   - `fastapi`: Web framework for REST API
-  - `aiosqlite`: Async SQLite database operations
+  - `chromadb`: Vector database for embeddings and similarity search
   - `pdfplumber`: PDF text extraction
-  - `sqlite-vec`: Vector similarity search extension
+  - `sentence-transformers`: Embedding model support
   - `asyncio`: Built-in async/await support
 - **Development Tools**:
   - `pytest`: Testing framework
   - `black`: Code formatting
   - `mypy`: Static type checking
   - `ruff`: Fast Python linter
+
