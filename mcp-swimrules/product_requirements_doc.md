@@ -178,12 +178,15 @@ The Swim Rules Agent is a web-based application that provides officials with qui
 - Print-friendly formatting with embedded context
 - Source attribution for retrieved contextual information
 
+#### 4.3.5 Web UI Styling
+- Separate CSS file for styling
+
 ### 4.4 Rule Ingestion
 - **Requirement**: Ingest USA swimming rules and regulations from PDF documents into a vector database for semantic search.
 - **Acceptance Criteria**:
   - Create embedding vectors for all ingested rules
   - Create a metadata related to the ingested rules (e.g., stroke, rule identifer))   
-  
+
 ## 5. Technical Requirements
 
 ### 5.1 Architecture
