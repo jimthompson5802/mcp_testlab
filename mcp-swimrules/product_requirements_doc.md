@@ -98,16 +98,13 @@ The Swim Rules Agent is a web-based application that provides officials with qui
   - `get_related_rules`: Find related and cross-referenced rules using vector similarity
   - `validate_scenario`: Analyze scenarios for rule compliance with RAG-enhanced interpretation
   - `semantic_search`: Vector-based semantic search across rule embeddings
-  - `get_rule_context`: Retrieve contextual information and historical interpretations
 
 #### 4.2.2 Data Management Tools
 - **MCP Tools Required**:
   - `update_rules`: Handle USA Swimming rule updates and re-generate embeddings
   - `sync_database`: Synchronize with official rule sources
   - `validate_database`: Ensure data integrity
-  - `get_rule_history`: Track rule changes and versions
   - `update_embeddings`: Refresh vector embeddings for rule database
-  - `index_scenarios`: Index analyzed scenarios for future retrieval
 
 #### 4.2.3 RAG Enhancement Tools
 - **MCP Tools Required**:
@@ -239,7 +236,6 @@ The Swim Rules Agent is a web-based application that provides officials with qui
   - Maintain rule version history with embedding versioning via async workers
   - Notify users of significant changes affecting semantic relationships through async notifications
   - Validate update integrity including embedding quality using async validation pipelines
-  - Re-index historical scenarios against updated rule base with async batch processing
 
 ## 5. Technical Requirements
 
@@ -311,7 +307,6 @@ The Swim Rules Agent is a web-based application that provides officials with qui
 ### 8.1 PDF Rule Ingestion Pipeline (Python Implementation)
 
 ```python
-# filepath: /Users/jim/Desktop/modelcontextprotocol/mcp_testlab/mcp-swimrules/product_requirements_doc.md
 # PDF Rule Ingestion Pipeline with async processing
 from fastmcp import FastMCP
 from typing import List, Dict, Optional, Tuple
@@ -905,7 +900,6 @@ async def update_rules_async() -> None:
 ### 8.2 Python Async RAG Pipeline Architecture
 
 ```python
-# filepath: /Users/jim/Desktop/modelcontextprotocol/mcp_testlab/mcp-swimrules/product_requirements_doc.md
 # Async RAG Pipeline Implementation with SQLite using Python
 from typing import List, Optional, Dict, Any
 import asyncio
@@ -967,12 +961,11 @@ class AsyncSQLiteRAGPipeline:
         
         # Concurrent context retrieval using SQLite
         similarity_task = asyncio.create_task(self._similarity_search(embedding))
-        rule_task = asyncio.create_task(self._get_related_rules(query))
         
-        similar_contexts, related_rules = await asyncio.gather(similarity_task, rule_task)
+        similar_contexts = await similarity_task
         
         # Async response augmentation
-        return await self.augment_response(query, similar_contexts, related_rules)
+        return await self.augment_response(query, similar_contexts)
     
     async def _similarity_search(self, embedding: List[float]) -> List[Dict[str, Any]]:
         """Perform vector similarity search using sqlite-vec
@@ -993,112 +986,58 @@ class AsyncSQLiteRAGPipeline:
         
         results = await cursor.fetchall()
         return [{"id": r[0], "text": r[1], "similarity": 1-r[2]} for r in results]
-    
-    async def _get_related_rules(self, query: str) -> List[Dict[str, Any]]:
-        """Get related rules using full-text search
-        
-        Args:
-            query: Search query string
-            
-        Returns:
-            List of related rules from full-text search
-        """
-        cursor = await self.db_connection.execute("""
-            SELECT rule_id, rule_text, rule_number 
-            FROM rules_fts 
-            WHERE rules_fts MATCH ? 
-            ORDER BY rank 
-            LIMIT 10
-        """, (query,))
-        
-        results = await cursor.fetchall()
-        return [{"id": r[0], "text": r[1], "number": r[2]} for r in results]
 ```
 
 ### 8.3 Python SQLite Database Schema
 
 ```sql
--- filepath: /Users/jim/Desktop/modelcontextprotocol/mcp_testlab/mcp-swimrules/product_requirements_doc.md
 -- SQLite database schema for Python-based swim rules application
 
--- Core rules table with full-text search
+-- Core rules table (simplified)
 CREATE TABLE rules (
     rule_id TEXT PRIMARY KEY,
     rule_number TEXT NOT NULL,
     rule_text TEXT NOT NULL,
     category TEXT NOT NULL,
-    effective_date DATE,
     version INTEGER DEFAULT 1,
-    rule_title TEXT,
-    section TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Full-text search virtual table
-CREATE VIRTUAL TABLE rules_fts USING fts5(
-    rule_id UNINDEXED,
-    rule_number,
-    rule_text,
-    category,
-    content='rules',
-    content_rowid='rowid'
-);
-
--- Vector embeddings table using sqlite-vec
+-- Vector embeddings table using sqlite-vec (primary focus)
 CREATE VIRTUAL TABLE vec_rules USING vec0(
     embedding float[1536],  -- Dimension for OpenAI embeddings
-    rule_id TEXT PRIMARY KEY
-);
-
--- Rule relationships and cross-references
-CREATE TABLE rule_relationships (
-    relationship_id INTEGER PRIMARY KEY,
-    rule_id TEXT REFERENCES rules(rule_id),
-    related_rule_id TEXT REFERENCES rules(rule_id),
-    relationship_type TEXT NOT NULL,
-    strength REAL DEFAULT 1.0
-);
-
--- Historical rule versions
-CREATE TABLE rule_history (
-    history_id INTEGER PRIMARY KEY,
-    rule_id TEXT REFERENCES rules(rule_id),
-    previous_text TEXT,
-    change_description TEXT,
-    changed_date DATE,
-    version INTEGER
-);
-
--- Violation patterns and triggers
-CREATE TABLE violations (
-    violation_id TEXT PRIMARY KEY,
-    rule_id TEXT REFERENCES rules(rule_id),
-    violation_type TEXT NOT NULL,
-    severity TEXT NOT NULL,
-    penalty_description TEXT,
-    trigger_patterns TEXT  -- JSON array of pattern strings
-);
-
--- Analyzed scenarios for learning
-CREATE TABLE scenarios (
-    scenario_id TEXT PRIMARY KEY,
-    scenario_text TEXT NOT NULL,
-    analysis_result TEXT,  -- JSON result
-    applicable_rules TEXT, -- JSON array of rule_ids
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    embedding BLOB  -- Serialized embedding vector
+    rule_id TEXT PRIMARY KEY,
+    rule_text TEXT,
+    rule_number TEXT
 );
 
 -- Performance indexes
 CREATE INDEX idx_rules_category ON rules(category);
 CREATE INDEX idx_rules_version ON rules(version);
-CREATE INDEX idx_violations_type ON violations(violation_type);
-CREATE INDEX idx_scenarios_created ON scenarios(created_at);
 ```
 
 ### 8.4 Python Development Environment Requirements
 
 - **Python Version**: 3.11+ with typing support
+- **Required Packages**:
+  - `fastmcp`: MCP server and client functionality
+  - `fastapi`: Web framework for REST API
+  - `aiosqlite`: Async SQLite database operations
+  - `pdfplumber`: PDF text extraction
+  - `sqlite-vec`: Vector similarity search extension
+  - `asyncio`: Built-in async/await support
+- **Development Tools**:
+  - `pytest`: Testing framework
+  - `black`: Code formatting
+  - `mypy`: Static type checking
+  - `ruff`: Fast Python linter
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+
+
+### 8.4 Python Development Environment Requirements
+
+- **Python Version**: 3.11+ with typing support
+
 - **Required Packages**:
   - `fastmcp`: MCP server and client functionality
   - `fastapi`: Web framework for REST API
