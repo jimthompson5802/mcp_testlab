@@ -4,6 +4,7 @@ aiosqlite
 pdfplumber
 sqlite-vec
 asyncio
+ipykernel
 pytest
 pytest-asyncio
 pytest-cov
@@ -14,6 +15,7 @@ requests
 gradio[mcp]
 textblob
 langchain
+langchain-community
 langchain-chroma
 langchain-openai
 langgraph

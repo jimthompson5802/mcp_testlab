@@ -123,6 +123,7 @@ env/
 *.db
 *.sqlite3
 chroma_langchain_db/
+swim_rules_db/
 
 # rules data
 rule_data/
