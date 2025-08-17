@@ -69,10 +69,13 @@ The Swim Rules Agent is a web-based application that provides officials with qui
 
 ### 4.2 MCP Integration Features
 
-#### 4.2.1 Rule Database Access
+#### 4.2.1 Siutaion Analysis
 - **MCP Tools Required**:
   - `analyze_situation`: Analyze specified situation to determine if legal or disqualification with rationale and rule citation.
-    - return values:
+    - Transport: stdio
+    - Input: Natural language description of the swimming scenario
+    - Use RAG enhanced tools to retrieve relevant rules and context from ChromaDB vector database
+    - Output: 
       - `decision`: "ALLOWED" or "DISQUALIFICATION"
       - `rationale`: Detailed explanation of the decision
       - `rule_citations`: List of relevant rule citations (identifier)
