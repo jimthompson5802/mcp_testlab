@@ -24,9 +24,7 @@ The Swim Rules Agent is a web-based application that provides officials with qui
 - MCP integration for accessing USA Swimming rule databases
 - Rule lookup functionality with citation references
 - Swimming violation checking and validation
-- Meet regulation compliance verification
 - Complex scenario analysis involving multiple rules
-- Rule update management system
 - Local deployment with cloud migration readiness
 
 ### 2.2 Out of Scope
@@ -52,78 +50,36 @@ The Swim Rules Agent is a web-based application that provides officials with qui
 
 ### 4.1 Core Features
 
-#### 4.1.1 Rule Lookup System
-- **Requirement**: Users can search for specific USA Swimming rules
-- **Acceptance Criteria**:
-  - Full-text search across rule database
-  - Search by rule number, keyword, or category
-  - Return rule citation with complete text
-  - Display related rules and cross-references
-  - Search response time < 2 seconds
-
-#### 4.1.2 Violation Checking
+#### 4.1.1 Violation Checking
 - **Requirement**: Analyze described swimming scenarios for rule violations
 - **Acceptance Criteria**:
   - Accept natural language scenario descriptions
   - Identify applicable rules and potential violations
   - Provide detailed explanation of violations
-  - Suggest corrective actions or penalties
   - Handle multiple violation scenarios
 
-#### 4.1.3 Meet Regulation Validation
-- **Requirement**: Validate meet procedures against USA Swimming regulations
-- **Acceptance Criteria**:
-  - Check meet format compliance
-  - Validate timing and scoring procedures
-  - Verify equipment and facility requirements
-  - Provide compliance checklists
-  - Generate regulation summary reports
-
-#### 4.1.4 Complex Scenario Analysis
+#### 4.1.2 Complex Scenario Analysis
 - **Requirement**: Analyze multi-faceted situations involving multiple rules using RAG-enhanced interpretation
 - **Acceptance Criteria**:
   - Process scenarios with multiple rule interactions using vector similarity search
   - Prioritize rule applications based on semantic relevance
   - Identify conflicting regulations through context-aware analysis
   - Provide step-by-step analysis with supporting rule citations
-  - Support "what-if" scenario modeling with historical precedent lookup
   - Generate natural language explanations augmented by retrieved rule context
 
 ### 4.2 MCP Integration Features
 
 #### 4.2.1 Rule Database Access
 - **MCP Tools Required**:
-  - `search_rules`: Full-text and semantic rule search functionality
-  - `get_rule_by_number`: Retrieve specific rule by reference number
-  - `get_related_rules`: Find related and cross-referenced rules using vector similarity
-  - `validate_scenario`: Analyze scenarios for rule compliance with RAG-enhanced interpretation
-  - `semantic_search`: Vector-based semantic search across rule embeddings
-
-#### 4.2.2 Data Management Tools
-- **MCP Tools Required**:
-  - `update_rules`: Handle USA Swimming rule updates and re-generate embeddings
-  - `sync_database`: Synchronize with official rule sources
-  - `validate_database`: Ensure data integrity
-  - `update_embeddings`: Refresh vector embeddings for rule database
-
-#### 4.2.3 RAG Enhancement Tools
-- **MCP Tools Required**:
-  - `generate_embeddings`: Create vector embeddings for rules and scenarios
-  - `similarity_search`: Find semantically similar rules and precedents
-  - `context_retrieval`: Retrieve relevant context for rule interpretation
-  - `augment_response`: Enhance responses with retrieved contextual information
+  - `analyze_situation`: Analyze specified situation to determine if legal or disqualification with rationale and rule citation.
 
 ### 4.3 User Interface Requirements
 
 #### 4.3.1 Query Interface
 - Clean, intuitive search interface with semantic search capabilities
 - Support for natural language queries with intent recognition
-- Advanced search filters (category, rule type, date, similarity threshold)
-- Query history and saved searches with semantic clustering
-- Export functionality for results including retrieved context
-- Visual similarity indicators for related rules and scenarios
 
-#### 4.3.2 Web Interface Layout
+#### 4.3.2 Web Interface for swim situation analysis
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -186,13 +142,13 @@ The Swim Rules Agent is a web-based application that provides officials with qui
 └───────────────────────────────────────────────────────────────────────────-─┘
 ```
 
+
 #### 4.3.3 Interface Component Specifications
 
 **Scenario Input Area:**
 - Multi-line text area (minimum 4 rows, expandable)
 - Character limit: 2000 characters with live counter
 - Placeholder text with example scenarios
-- Auto-save draft functionality
 - Input validation for minimum meaningful content
 
 **Decision Display:**
@@ -208,14 +164,11 @@ The Swim Rules Agent is a web-based application that provides officials with qui
 - Supports rich text formatting for emphasis
 - Expandable/collapsible for long explanations
 - Word wrap enabled
-- Copy-to-clipboard functionality
 
 **Rule Citations Box:**
 - Structured list format with hierarchical display
 - Clickable rule numbers for detailed rule text
 - Categorized citations (Primary, Supporting, Related)
-- Link to official USA Swimming rule database
-- Export citations in standard format
 
 #### 4.3.4 Response Display
 - Clear rule citation format with confidence scores
@@ -225,15 +178,12 @@ The Swim Rules Agent is a web-based application that provides officials with qui
 - Print-friendly formatting with embedded context
 - Source attribution for retrieved contextual information
 
-### 4.4 Rule Update Management
-- **Requirement**: Automatically handle USA Swimming rule updates with RAG pipeline refresh using async operations
+### 4.4 Rule Ingestion
+- **Requirement**: Ingest USA swimming rules and regulations from PDF documents into a vector database for semantic search.
 - **Acceptance Criteria**:
-  - Detect new rule publications and trigger embedding updates asynchronously
-  - Update database without service interruption using background tasks
-  - Maintain rule version history with embedding versioning via async workers
-  - Notify users of significant changes affecting semantic relationships through async notifications
-  - Validate update integrity including embedding quality using async validation pipelines
-
+  - Create embedding vectors for all ingested rules
+  - Create a metadata related to the ingested rules (e.g., stroke, rule identifer))   
+  
 ## 5. Technical Requirements
 
 ### 5.1 Architecture
