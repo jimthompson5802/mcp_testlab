@@ -1,0 +1,25 @@
+# Swim Rules Agent Web Application Requirements
+
+# FastAPI and web framework dependencies
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+jinja2==3.1.2
+python-multipart==0.0.6
+
+# Data validation and serialization
+pydantic==2.5.0
+
+# HTTP client for making requests
+httpx==0.25.2
+
+# Development dependencies
+pytest==7.4.3
+pytest-asyncio==0.21.1
+
+# MCP integration (when available)
+# fastmcp==0.1.0  # Uncomment when available
+
+# Optional dependencies for future enhancements
+# chromadb==0.4.15  # For vector database integration
+# sentence-transformers==2.2.2  # For embeddings
+# pdfplumber==0.9.0  # For PDF processing
