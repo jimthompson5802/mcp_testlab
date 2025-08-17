@@ -72,6 +72,10 @@ The Swim Rules Agent is a web-based application that provides officials with qui
 #### 4.2.1 Rule Database Access
 - **MCP Tools Required**:
   - `analyze_situation`: Analyze specified situation to determine if legal or disqualification with rationale and rule citation.
+    - return values:
+      - `decision`: "ALLOWED" or "DISQUALIFICATION"
+      - `rationale`: Detailed explanation of the decision
+      - `rule_citations`: List of relevant rule citations (identifier)
 
 ### 4.3 User Interface Requirements
 
@@ -864,7 +868,7 @@ class AsyncChromaRAGPipeline:
 -- ChromaDB Configuration (handled in Python code):
 -- - Collection: "swim_rules"
 -- - Embedding function: SentenceTransformerEmbeddingFunction
--- - Metadata: rule_number, rule_title, category, section, version, effective_date
+-- - Metadata: rule_number, rule_title, stroke
 -- - Documents: Combined rule_title + rule_text for embedding
 -- - IDs: rule_id
 ```
