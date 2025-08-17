@@ -122,6 +122,7 @@ env/
 # local development database files
 *.db
 *.sqlite3
+chroma_langchain_db/
 
 # rules data
 rule_data/

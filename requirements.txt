@@ -14,7 +14,13 @@ requests
 gradio[mcp]
 textblob
 langchain
+langchain-chroma
 langchain-openai
 langgraph
 langchain-mcp-adapters
 pygraphviz
+chromadb
+pypdf
+pymupdf
+pdfplumber
+load_dotenv
