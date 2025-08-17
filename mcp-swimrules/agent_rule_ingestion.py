@@ -27,7 +27,6 @@ from langchain.schema import Document
 
 # Configuration constants
 RULEBOOK_FP = "./rule_data/2025-mini-rulebook.pdf"
-SITUATIONS_FP = "./rule_data/2025-03-situations-and-resolutions-stroke-and-turn.pdf"
 VECTORDB_DIR = "./agent_swimrules_db"
 GLOSSARY_FP = "./rule_data/glossary_terms.txt"
 GUIDANCE_FP = "./rule_data/interpretation_guidance.txt"
@@ -387,38 +386,6 @@ class AgentRuleIngestionPipeline:
                 ],
             )
             all_chunks.extend(guidance_chunks)
-
-        # Process situations and resolutions document
-        print("Processing situations and resolutions...")
-        if os.path.exists(SITUATIONS_FP):
-            try:
-                situations_loader = PyPDFLoader(SITUATIONS_FP)
-                situations_pages = situations_loader.load()
-
-                situations_splitter = RecursiveCharacterTextSplitter(
-                    chunk_size=600,
-                    chunk_overlap=100,
-                    length_function=len,
-                )
-
-                situations_chunks = situations_splitter.split_documents(situations_pages)
-
-                for chunk in situations_chunks:
-                    chunk.metadata = {
-                        "rule_id": f"situation_{chunk.metadata.get('page', 0)}",
-                        "rule_number": "SITUATIONS",
-                        "rule_title": "Stroke and Turn Situations",
-                        "category": "Practical Applications",
-                        "stroke_type": "none",
-                        "section": "Situations",
-                        "chunk_type": "situation",
-                        "source": SITUATIONS_FP,
-                        "page": str(chunk.metadata.get("page", 0)),
-                    }
-
-                all_chunks.extend(situations_chunks)
-            except Exception as e:
-                print(f"Warning: Could not process situations document: {e}")
 
         return all_chunks
 
