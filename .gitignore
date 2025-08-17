@@ -122,3 +122,6 @@ env/
 # local development database files
 *.db
 *.sqlite3
+
+# rules data
+rule_data/
