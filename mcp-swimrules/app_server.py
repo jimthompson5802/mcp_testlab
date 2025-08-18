@@ -1,6 +1,8 @@
 """
 FastAPI Application Server for Swim Rules Agent
 Web-based interface for USA Swimming rules analysis and violation checking.
+
+Integrates with MCP Situation Analysis module as specified in PRD sections 4.2 and 4.3.
 """
 
 from fastapi import FastAPI, Request, HTTPException
@@ -8,9 +10,15 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
-from typing import Dict, List
+from typing import Dict, List, Optional
 import asyncio
 import uvicorn
+import os
+import json
+
+# FastMCP imports for proper MCP client integration
+from fastmcp import Client
+from fastmcp.client.transports import StdioTransport
 
 
 # Data models for API requests/responses
@@ -69,6 +77,110 @@ app = FastAPI(
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
+
+class MCPSituationAnalysisClient:
+    """
+    MCP Client for connecting to the Situation Analysis server
+    Implements stdio transport as specified in PRD section 4.2.1
+    Uses proper FastMCP client library
+    """
+
+    def __init__(self, server_script_path: str = "mcp_situation_analysis.py"):
+        """
+        Initialize MCP client for situation analysis
+
+        Args:
+            server_script_path: Path to the MCP situation analysis server script
+        """
+        self.server_script_path = server_script_path
+        self.client: Optional[Client] = None
+        self.transport: Optional[StdioTransport] = None
+        self.initialized = False
+
+    async def initialize(self):
+        """Initialize the MCP connection to situation analysis server"""
+        try:
+            # Create stdio transport for MCP server
+            current_dir = os.path.dirname(os.path.abspath(__file__))
+            server_path = os.path.join(current_dir, self.server_script_path)
+
+            if not os.path.exists(server_path):
+                raise FileNotFoundError(f"MCP server script not found: {server_path}")
+
+            # Initialize transport with the MCP server script
+            self.transport = StdioTransport(command="python", args=[server_path])
+
+            # Create FastMCP client
+            self.client = Client(self.transport)
+
+            # Start the client connection
+            await self.client.__aenter__()
+
+            self.initialized = True
+            print("MCP Situation Analysis server started successfully")
+
+        except Exception as e:
+            print(f"Failed to initialize MCP client: {e}")
+            raise RuntimeError(f"MCP client initialization failed: {e}")
+
+    async def analyze_situation(self, scenario: str) -> Dict:
+        """
+        Call the analyze_situation MCP tool using proper FastMCP client
+
+        Args:
+            scenario: Natural language description of swimming scenario
+
+        Returns:
+            Dictionary with decision, rationale, and rule_citations
+        """
+        if not self.initialized or not self.client:
+            raise RuntimeError("MCP client not initialized")
+
+        try:
+            # Call the MCP tool using FastMCP client
+            response = await self.client.call_tool("analyze_situation", {"scenario": scenario})
+
+            # Parse the response from FastMCP CallToolResult
+            if hasattr(response, "data") and isinstance(response.data, dict):
+                # The response.data contains the dictionary we need
+                return response.data
+            elif hasattr(response, "structured_content") and isinstance(response.structured_content, dict):
+                # Alternative: use structured_content if available
+                return response.structured_content
+            elif hasattr(response, "content") and response.content:
+                # Fallback: parse from content text
+                content = response.content[0] if isinstance(response.content, list) else response.content
+                if hasattr(content, "text") and hasattr(content, "type") and content.type == "text":
+                    try:
+                        return json.loads(content.text)
+                    except json.JSONDecodeError:
+                        return {"decision": "DISQUALIFICATION", "rationale": content.text, "rule_citations": []}
+
+            # Final fallback
+            return {"decision": "DISQUALIFICATION", "rationale": "Unable to parse MCP response", "rule_citations": []}
+
+        except Exception as e:
+            print(f"Error calling MCP analyze_situation: {e}")
+            return {
+                "decision": "DISQUALIFICATION",
+                "rationale": f"Analysis error: {str(e)}. Please consult official swimming rules.",
+                "rule_citations": [],
+            }
+
+    async def cleanup(self):
+        """Cleanup MCP client connection"""
+        if self.client:
+            try:
+                await self.client.__aexit__(None, None, None)
+                print("MCP client connection closed")
+            except Exception as e:
+                print(f"Error closing MCP connection: {e}")
+            finally:
+                self.client = None
+                self.transport = None
+                self.initialized = False
+
+
 # Initialize MCP client connection (placeholder for actual MCP integration)
 mcp_client = None
 
@@ -77,10 +189,14 @@ mcp_client = None
 async def startup_event():
     """Initialize MCP client connection on startup"""
     global mcp_client
-    # TODO: Initialize actual MCP client connection
-    # This would connect to the MCP server with swim rules tools
-    print("Starting Swim Rules Agent server...")
-    print("MCP client initialization placeholder")
+    try:
+        print("Starting Swim Rules Agent server...")
+        mcp_client = MCPSituationAnalysisClient()
+        await mcp_client.initialize()
+        print("MCP client initialized successfully")
+    except Exception as e:
+        print(f"Failed to initialize MCP client: {e}")
+        print("Server will continue with limited functionality")
 
 
 @app.on_event("shutdown")
@@ -88,8 +204,8 @@ async def shutdown_event():
     """Cleanup MCP client connection on shutdown"""
     global mcp_client
     if mcp_client:
-        # TODO: Properly close MCP client connection
-        print("Shutting down MCP client connection")
+        await mcp_client.cleanup()
+        print("MCP client connection closed")
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -107,7 +223,7 @@ async def health_check():
 @app.post("/api/analyze", response_model=AnalysisResponse)
 async def analyze_scenario(request: ScenarioAnalysisRequest) -> AnalysisResponse:
     """
-    Analyze swimming scenario for rule violations
+    Analyze swimming scenario for rule violations using MCP Situation Analysis
 
     Args:
         request: Scenario analysis request containing the scenario description
@@ -126,9 +242,15 @@ async def analyze_scenario(request: ScenarioAnalysisRequest) -> AnalysisResponse
         if len(request.scenario) > 2000:
             raise HTTPException(status_code=400, detail="Scenario description too long (max 2000 characters)")
 
-        # TODO: Replace with actual MCP tool call
-        # For now, return a mock response based on scenario content
-        analysis_result = await _mock_scenario_analysis(request.scenario)
+        # Check if MCP client is available
+        if not mcp_client or not mcp_client.initialized:
+            raise HTTPException(status_code=503, detail="MCP analysis service unavailable")
+
+        # Call MCP situation analysis
+        mcp_result = await mcp_client.analyze_situation(request.scenario)
+
+        # Convert MCP result to API response format
+        analysis_result = _convert_mcp_to_response(mcp_result)
 
         return analysis_result
 
@@ -138,75 +260,46 @@ async def analyze_scenario(request: ScenarioAnalysisRequest) -> AnalysisResponse
         raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
 
 
-async def _mock_scenario_analysis(scenario: str) -> AnalysisResponse:
+def _convert_mcp_to_response(mcp_result: Dict) -> AnalysisResponse:
     """
-    Mock scenario analysis function
-    TODO: Replace with actual MCP tool integration
+    Convert MCP tool result to AnalysisResponse format
 
     Args:
-        scenario: Scenario description to analyze
+        mcp_result: Result from MCP analyze_situation tool
 
     Returns:
-        AnalysisResponse: Mock analysis results
+        AnalysisResponse: Formatted response for API
     """
-    # Simple keyword-based mock analysis
-    scenario_lower = scenario.lower()
+    # Extract decision and validate
+    decision = mcp_result.get("decision", "DISQUALIFICATION")
+    if decision not in ["ALLOWED", "DISQUALIFICATION"]:
+        decision = "DISQUALIFICATION"
 
-    # Check for common violation keywords
-    violation_keywords = {
-        "both hands": ("breaststroke", "butterfly"),
-        "false start": ("starting",),
-        "lane violation": ("lane",),
-        "stroke technique": ("stroke", "technique"),
-        "turn": ("turn", "wall"),
-    }
+    # Extract rationale
+    rationale = mcp_result.get("rationale", "No rationale provided")
 
-    decision = "ALLOWED"
-    confidence = 85.0
-    rationale = "The described scenario appears to be within regulation based on standard USA Swimming rules."
-    citations = [
-        RuleCitation(rule_number="102.1.1", rule_title="General Swimming Regulations", rule_category="General Rules")
-    ]
+    # Extract rule citations and convert to RuleCitation objects
+    rule_citations_list = mcp_result.get("rule_citations", [])
+    citations = []
 
-    # Check for potential violations
-    for keyword, strokes in violation_keywords.items():
-        if keyword in scenario_lower:
-            if any(stroke in scenario_lower for stroke in strokes):
-                decision = "DISQUALIFICATION"
-                confidence = 95.0
+    for citation_id in rule_citations_list:
+        if isinstance(citation_id, str) and citation_id.strip():
+            # Create RuleCitation with available information
+            # In a real implementation, you might look up rule titles and categories
+            citations.append(
+                RuleCitation(
+                    rule_number=citation_id,
+                    rule_title=f"Rule {citation_id}",  # Placeholder - could be enhanced with actual rule lookup
+                    rule_category="Swimming Rules",  # Placeholder - could be categorized based on rule number
+                )
+            )
 
-                if "both hands" in scenario_lower and (
-                    "breaststroke" in scenario_lower or "butterfly" in scenario_lower
-                ):
-                    rationale = (
-                        "The described scenario constitutes a violation of breaststroke/butterfly "
-                        "technique requirements. USA Swimming rules mandate that swimmers must touch "
-                        "the wall with both hands simultaneously during turns and finishes in "
-                        "breaststroke and butterfly events. Failure to do so results in immediate "
-                        "disqualification as it provides an unfair competitive advantage and violates "
-                        "stroke technique standards.\n\n"
-                        "The violation is clear and unambiguous, requiring no official discretion in application."
-                    )
-
-                    citations = [
-                        RuleCitation(
-                            rule_number="101.2.2",
-                            rule_title="Breaststroke Turn Requirements",
-                            rule_category="Stroke Technique",
-                        ),
-                        RuleCitation(
-                            rule_number="101.2.3",
-                            rule_title="Breaststroke Finish Requirements",
-                            rule_category="Stroke Technique",
-                        ),
-                        RuleCitation(
-                            rule_number="102.5.1", rule_title="Disqualification Procedures", rule_category="Officials"
-                        ),
-                    ]
-                break
-
-    # Simulate async processing delay
-    await asyncio.sleep(0.1)
+    # Determine confidence based on decision clarity and rationale length
+    confidence = 85.0  # Default confidence
+    if "clear" in rationale.lower() or "obvious" in rationale.lower():
+        confidence = 95.0
+    elif "uncertain" in rationale.lower() or "unclear" in rationale.lower():
+        confidence = 60.0
 
     return AnalysisResponse(decision=decision, confidence=confidence, rationale=rationale, rule_citations=citations)
 
