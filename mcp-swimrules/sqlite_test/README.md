@@ -1,0 +1,1 @@
+This documents code used for testing sqlite as the vector store.  At the moment, not pursuing further development with sqlite.

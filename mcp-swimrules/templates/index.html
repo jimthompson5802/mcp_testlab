@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Swim Rules Agent - Official Scenario Analysis</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header Section -->
+        <header class="header">
+            <h1>Swim Rules Agent</h1>
+            <h2>Official Scenario Analysis</h2>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Scenario Input Section -->
+            <section class="input-section">
+                <h3>Scenario Input:</h3>
+                <div class="input-container">
+                    <textarea 
+                        id="scenarioInput" 
+                        class="scenario-textarea"
+                        placeholder="Enter swimming scenario description...
+
+Example: &quot;Swimmer did not touch the wall with both hands simultaneously during breaststroke turn&quot;"
+                        maxlength="2000"
+                        rows="6"></textarea>
+                    <div class="char-counter">
+                        <span id="charCount">0</span>/2000 characters
+                    </div>
+                </div>
+                
+                <div class="button-container">
+                    <button id="analyzeBtn" class="btn btn-primary">Analyze</button>
+                    <button id="clearBtn" class="btn btn-secondary">Clear Input</button>
+                    <button id="exampleBtn" class="btn btn-example">Load Example</button>
+                </div>
+            </section>
+
+            <!-- Loading Indicator -->
+            <div id="loadingIndicator" class="loading-indicator hidden">
+                <div class="spinner"></div>
+                <p>Analyzing scenario...</p>
+            </div>
+
+            <!-- Analysis Results Section -->
+            <section id="resultsSection" class="results-section hidden">
+                <h3>ANALYSIS RESULTS</h3>
+                
+                <!-- Decision Display -->
+                <div class="decision-container">
+                    <h4>Decision:</h4>
+                    <div id="decisionBanner" class="decision-banner">
+                        <span id="decisionIcon" class="decision-icon"></span>
+                        <span id="decisionText" class="decision-text"></span>
+                        <span id="confidenceText" class="confidence-text"></span>
+                    </div>
+                </div>
+
+                <!-- Rationale Display -->
+                <div class="rationale-container">
+                    <h4>Rationale:</h4>
+                    <div id="rationaleText" class="rationale-text"></div>
+                </div>
+
+                <!-- Rule Citations Display -->
+                <div class="citations-container">
+                    <h4>Rule Citations:</h4>
+                    <div id="citationsContent" class="citations-content"></div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2025 Swim Rules Agent - USA Swimming Rules Analysis System</p>
+        </footer>
+    </div>
+
+    <!-- Example Scenarios Modal -->
+    <div id="exampleModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Example Scenarios</h3>
+                <button id="closeModal" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="example-category">
+                    <h4>Stroke Violations</h4>
+                    <div class="example-list" data-category="stroke_violations"></div>
+                </div>
+                <div class="example-category">
+                    <h4>Starting Violations</h4>
+                    <div class="example-list" data-category="starting_violations"></div>
+                </div>
+                <div class="example-category">
+                    <h4>General Violations</h4>
+                    <div class="example-list" data-category="general_violations"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Toast -->
+    <div id="errorToast" class="error-toast hidden">
+        <span id="errorMessage"></span>
+        <button id="closeError" class="close-error">&times;</button>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>

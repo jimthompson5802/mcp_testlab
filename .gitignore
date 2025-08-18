@@ -118,3 +118,13 @@ cython_debug/
 venv/
 ENV/
 env/
+
+# local development database files
+*.db
+*.sqlite3
+chroma_langchain_db/
+swim_rules_db/
+
+# rules data
+rule_data/
+agent_swimrules_db/
