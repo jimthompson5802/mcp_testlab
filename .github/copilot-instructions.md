@@ -45,6 +45,10 @@ When contributing to this project, follow these coding style guidelines:
    - Use clear, descriptive variable and function names
    - Group related functionality within classes
 
+8. **LLM Prompt**
+   - when a prompt will span muliple lines use the triple quotes `"""` to enclose the prompt text.
+   - use `textwrap.dedent` to remove any common leading whitespace.
+
 ## Common Patterns
 
 1. **MCP Client Initialization**:
