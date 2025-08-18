@@ -1,5 +1,15 @@
 # Swim Rule Analysis
 
+## Product Requirements Document
+This example is based on a **Products Requirement Document** (PDR) for the SWIM Rules web application.  The PDR was used by Visual Studio Code Agent Mode to create and refactor the following modules.
+* `app_server.py`:  FastAPI Web application server
+* `mcp_situation_analysis.py`:  MCP Server performing RAG to retrieve relevant USA Swimming rules and interfacing with OpenAI LLM to render an analysis of the submitted situation.
+
+In addition to the above modules, Visual Studio Code Agent Mode also created test utilities and implementation summary files.
+
+The LLM used by Visual Studio Code Agent Mode was **Claude Sonnet 4**.  The Visual Studio Code Agent logs can be found in this [directory](./vsc_agent_logs). These logs summarize the chat converation with the agent in creating and refactoring the code. 
+
+
 ## High-level Overview
 
 The `app_server.py` and `mcp_situation_analysis.py` modules are integrated to provide a web-based interface for situation analysis using the MCP sentiment analysis tool:
