@@ -74,8 +74,10 @@ The Swim Rules Agent is a web-based application that provides officials with qui
   - `analyze_situation`: Analyze specified situation to determine if legal or disqualification with rationale and rule citation.
     - Transport: stdio
     - Input: Natural language description of the swimming scenario
-    - Use RAG enhanced tools to retrieve relevant rules and context from ChromaDB vector database
-    - Output: 
+    - Using the natural language description of the swimming scenario, use to RAG to retrieve relevant rules and context from ChromaDB vector database
+    - Use OpenAI LLM `gpt-4o` with the retrieved RAG documents to arrive at a decision and rationale.
+    - Extract from the retrieved RAG documents metadata the identifiers to be in the list of relevant citations.
+    - Output:
       - `decision`: "ALLOWED" or "DISQUALIFICATION"
       - `rationale`: Detailed explanation of the decision
       - `rule_citations`: List of relevant rule citations (identifier)
