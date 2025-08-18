@@ -169,51 +169,60 @@ class SwimRulesRAGAnalyzer:
 
     async def analyze_with_llm(self, scenario: str, relevant_rules: List[Dict[str, Any]]) -> AnalysisResult:
         """
-        Analyze scenario using OpenAI GPT-4o with retrieved rule context
+        Analyze scenario using OpenAI GPT-4o with retrieved rule context.
 
         Args:
-            scenario: Swimming scenario description
-            relevant_rules: List of relevant rules retrieved from RAG
+            scenario (str): Swimming scenario description
+            relevant_rules (List[Dict[str, Any]]): List of relevant rules retrieved from RAG
 
         Returns:
-            AnalysisResult with decision, rationale, and citations
+            AnalysisResult: Structured result with decision, rationale, and citations
         """
+        import textwrap
+
         try:
             # Prepare context from retrieved rules
             context_text = self._format_rules_context(relevant_rules)
 
-            # Create the analysis prompt
-            system_prompt = """You are an expert USA Swimming official with comprehensive knowledge of
-swimming rules and regulations.
+            # Create the analysis prompt using triple quotes and textwrap.dedent
+            system_prompt = textwrap.dedent(
+                """
+                You are an expert USA Swimming official with comprehensive knowledge of
+                swimming rules and regulations.
 
-Your task is to analyze swimming scenarios and determine if they constitute violations that would
-result in disqualification.
+                Your task is to analyze swimming scenarios and determine if they constitute violations that would
+                result in disqualification.
 
-For each scenario, you must:
-1. Carefully review the provided rule context
-2. Determine if the scenario describes a violation
-3. Provide your decision as either "ALLOWED" or "DISQUALIFICATION"
-4. Give a detailed rationale explaining your decision
-5. List the specific rule identifiers that support your decision
+                For each scenario, you must:
+                1. Carefully review the provided rule context
+                2. Determine if the scenario describes a violation
+                3. Provide your decision as either "ALLOWED" or "DISQUALIFICATION"
+                4. Give a detailed rationale explaining your decision
+                5. List the specific rule identifiers that support your decision
 
-Be precise and authoritative in your analysis. Base your decisions strictly on the provided rules."""
+                Be precise and authoritative in your analysis. Base your decisions strictly on the provided rules.
+                """
+            )
 
-            user_prompt = f"""
-SCENARIO TO ANALYZE:
-{scenario}
+            user_prompt = textwrap.dedent(
+                f"""
+                SCENARIO TO ANALYZE:
+                {scenario}
 
-RELEVANT RULES CONTEXT:
-{context_text}
+                RELEVANT RULES CONTEXT:
+                {context_text}
 
-Please analyze this scenario and provide your response in the following JSON format:
-{{
-    "decision": "ALLOWED" or "DISQUALIFICATION",
-    "rationale": "Detailed explanation of your decision",
-    "rule_citations": ["rule_id_1", "rule_id_2", ...],
-    "confidence_score": 0.95
-}}
+                Please analyze this scenario and provide your response in the following JSON format:
+                {{
+                    "decision": "ALLOWED" or "DISQUALIFICATION",
+                    "rationale": "Detailed explanation of your decision",
+                    "rule_citations": ["rule_id_1", "rule_id_2", ...],
+                    "confidence_score": 0.95
+                }}
 
-Focus on the specific rules that apply to this scenario and explain your reasoning clearly."""
+                Focus on the specific rules that apply to this scenario and explain your reasoning clearly.
+                """
+            )
 
             # Call OpenAI API
             response = await self.openai_client.chat.completions.create(
