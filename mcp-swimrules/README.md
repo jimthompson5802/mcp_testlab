@@ -1,7 +1,7 @@
 # Swim Rule Analysis
 
 ## Product Requirements Document
-This example is based on a **Products Requirement Document** (PDR) for the SWIM Rules web application.  The PDR was used by Visual Studio Code Agent Mode to create and refactor the following modules.
+This example is based on a [**Products Requirement Document** (PDR)](./product_requirements_doc.md) for the SWIM Rules web application.  The PDR was used by Visual Studio Code Agent Mode to create and refactor the following modules.
 * `app_server.py`:  FastAPI Web application server
 * `mcp_situation_analysis.py`:  MCP Server performing RAG to retrieve relevant USA Swimming rules and interfacing with OpenAI LLM to render an analysis of the submitted situation.
 
