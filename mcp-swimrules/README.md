@@ -41,7 +41,7 @@ flowchart TD
     StyleCSS["style.css"]
     AppServer["app_server.py<br/>(FastAPI Web Server)"]
     MCPAnalysis["mcp_situation_analysis.py"]
-    SwimRulesDB["agent_swimrules_db"]
+    SwimRulesDB@{shape: cyl, label: "SWIM Rules VectorDB"}
 
     Browser -- loads --> IndexHTML
     IndexHTML -- links --> ScriptJS
