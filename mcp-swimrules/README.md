@@ -39,9 +39,10 @@ flowchart TD
     IndexHTML["index.html"]
     ScriptJS["script.js"]
     StyleCSS["style.css"]
-    AppServer["app_server.py<br/>(FastAPI Web Server)"]
-    MCPAnalysis["mcp_situation_analysis.py"]
-    SwimRulesDB@{shape: cyl, label: "SWIM Rules VectorDB"}
+    AppServer["app_server.py<br/>(FastAPI Web App Server)"]
+    MCPAnalysis["mcp_situation_analysis.py<br/>(FastMCP Server)"]
+    SwimRulesDB@{shape: cyl, label: "SWIM Rules<br/>(Chroma VectorDB)"}
+    LLM["LLM<br/>(OpenAI GPT-4o)"]
 
     Browser -- loads --> IndexHTML
     IndexHTML -- links --> ScriptJS
@@ -49,8 +50,11 @@ flowchart TD
     Browser -- submits situation --> AppServer
     AppServer -- calls --> MCPAnalysis
     MCPAnalysis -- queries --> SwimRulesDB
+    SwimRulesDB -- returns chunks --> MCPAnalysis
     MCPAnalysis -- returns analysis --> AppServer
     AppServer -- returns result --> Browser
+    LLM -- returns response --> MCPAnalysis
+    MCPAnalysis -- augmented prompt --> LLM
 ```
 
 - **Web Browser** loads `index.html`, which includes `script.js` (handles UI logic and API calls) and `style.css` (styling).
