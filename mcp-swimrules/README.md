@@ -61,6 +61,8 @@ flowchart TD
 - The browser sends the situation description to `app_server.py` (FastAPI backend).
 - `app_server.py` calls `mcp_situation_analysis.py` to analyze the situation.
 - `mcp_situation_analysis.py` queries `agent_swimrules_db` for relevant rules and performs analysis.
+- The `mcp_situation_analysis.py` augments the situation description using the retrieved rules and sends to `LLM`.
+- The `LLM` processes the augmented prompt and returns a response to `mcp_situation_analysis.py`.
 - The analysis result is sent back through `app_server.py` to the browser for display.
 
 ## Product Requirements Document
