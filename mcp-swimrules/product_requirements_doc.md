@@ -117,7 +117,7 @@ The Swim Rules Agent is a web-based application that provides officials with qui
 │  Decision:                                                                  │
 │  ┌─────────────────────────────────────────────────────────────────────┐    │
 │  │  🚫 DISQUALIFICATION                                                 │   │
-│  │     Confidence: 95%                                                 │    │
+│  │                                                                     │    │
 │  └─────────────────────────────────────────────────────────────────────┘    │
 │                                                                             |
 │  Rationale:                                                                 │
@@ -165,7 +165,6 @@ The Swim Rules Agent is a web-based application that provides officials with qui
 - Color-coded status indicators:
   - 🟢 GREEN: "ALLOWED" / "NO VIOLATION"
   - 🔴 RED: "DISQUALIFICATION" / "VIOLATION"
-- Confidence percentage display (RAG-generated confidence score)
 - Visual icons for quick recognition
 
 **Rationale Text Box:**
@@ -180,7 +179,7 @@ The Swim Rules Agent is a web-based application that provides officials with qui
 - Categorized citations (Primary, Supporting, Related)
 
 #### 4.3.4 Response Display
-- Clear rule citation format with confidence scores
+- Clear rule citation format
 - Complete rule text with semantic highlighting
 - Visual indicators for violation severity and rule relevance
 - Structured analysis for complex scenarios with supporting evidence
