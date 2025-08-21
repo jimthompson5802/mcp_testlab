@@ -11,7 +11,6 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from typing import Dict, List, Optional
-import asyncio
 import uvicorn
 import os
 import json
@@ -39,31 +38,21 @@ class RuleCitation(BaseModel):
     """Model for rule citation information"""
 
     rule_number: str
-    rule_title: str
-    rule_category: str
 
 
 class AnalysisResponse(BaseModel):
-    """Response model for scenario analysis"""
+    """Response model for scenario analysis as specified in PRD Section 4.2.1"""
 
     decision: str  # "ALLOWED" or "DISQUALIFICATION"
-    confidence: float  # 0-100
     rationale: str
-    rule_citations: List[RuleCitation]
+    rule_citations: List[str]  # List of relevant rule citations (identifiers)
 
     class Config:
         json_schema_extra = {
             "example": {
                 "decision": "DISQUALIFICATION",
-                "confidence": 95.0,
                 "rationale": "The described scenario constitutes a violation of breaststroke technique requirements...",
-                "rule_citations": [
-                    {
-                        "rule_number": "101.2.2",
-                        "rule_title": "Breaststroke Turn Requirements",
-                        "rule_category": "Stroke Technique",
-                    }
-                ],
+                "rule_citations": ["101.2.2", "101.2.3", "102.5.1"],
             }
         }
 
@@ -278,30 +267,15 @@ def _convert_mcp_to_response(mcp_result: Dict) -> AnalysisResponse:
     # Extract rationale
     rationale = mcp_result.get("rationale", "No rationale provided")
 
-    # Extract rule citations and convert to RuleCitation objects
+    # Extract rule citations as simple list of strings
     rule_citations_list = mcp_result.get("rule_citations", [])
     citations = []
 
     for citation_id in rule_citations_list:
         if isinstance(citation_id, str) and citation_id.strip():
-            # Create RuleCitation with available information
-            # In a real implementation, you might look up rule titles and categories
-            citations.append(
-                RuleCitation(
-                    rule_number=citation_id,
-                    rule_title=f"Rule {citation_id}",  # Placeholder - could be enhanced with actual rule lookup
-                    rule_category="Swimming Rules",  # Placeholder - could be categorized based on rule number
-                )
-            )
+            citations.append(citation_id.strip())
 
-    # Determine confidence based on decision clarity and rationale length
-    confidence = 85.0  # Default confidence
-    if "clear" in rationale.lower() or "obvious" in rationale.lower():
-        confidence = 95.0
-    elif "uncertain" in rationale.lower() or "unclear" in rationale.lower():
-        confidence = 60.0
-
-    return AnalysisResponse(decision=decision, confidence=confidence, rationale=rationale, rule_citations=citations)
+    return AnalysisResponse(decision=decision, rationale=rationale, rule_citations=citations)
 
 
 @app.get("/api/scenario-examples")

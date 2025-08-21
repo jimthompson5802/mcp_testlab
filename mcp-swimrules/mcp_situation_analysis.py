@@ -36,22 +36,12 @@ except ImportError:
 
 
 @dataclass
-class RuleCitation:
-    """Rule citation data structure"""
-
-    identifier: str
-    title: str
-    relevance_score: float
-
-
-@dataclass
 class AnalysisResult:
-    """Analysis result data structure"""
+    """Analysis result data structure as specified in PRD Section 4.2.1"""
 
     decision: str  # "ALLOWED" or "DISQUALIFICATION"
     rationale: str
-    rule_citations: List[str]
-    confidence_score: float
+    rule_citations: List[str]  # List of relevant rule citations (identifiers)
 
 
 class SwimRulesRAGAnalyzer:
@@ -212,15 +202,15 @@ class SwimRulesRAGAnalyzer:
                 RELEVANT RULES CONTEXT:
                 {context_text}
 
-                Please analyze this scenario and provide your response in the following JSON format:
+                Please analyze this scenario and provide your response in the following JSON format exactly:
                 {{
                     "decision": "ALLOWED" or "DISQUALIFICATION",
                     "rationale": "Detailed explanation of your decision",
-                    "rule_citations": ["rule_id_1", "rule_id_2", ...],
-                    "confidence_score": 0.95
+                    "rule_citations": ["rule_id_1", "rule_id_2", ...]
                 }}
 
                 Focus on the specific rules that apply to this scenario and explain your reasoning clearly.
+                Base your decision strictly on the provided rule context.
                 """
             )
 
@@ -245,7 +235,6 @@ class SwimRulesRAGAnalyzer:
                 decision="DISQUALIFICATION",
                 rationale=f"Error analyzing scenario: {str(e)}. When in doubt, consult official rules.",
                 rule_citations=[],
-                confidence_score=0.0,
             )
 
     def _format_rules_context(self, relevant_rules: List[Dict[str, Any]]) -> str:
@@ -284,7 +273,6 @@ Content: {content}
                     decision=parsed.get("decision", "DISQUALIFICATION"),
                     rationale=parsed.get("rationale", "Unable to parse analysis"),
                     rule_citations=parsed.get("rule_citations", []),
-                    confidence_score=parsed.get("confidence_score", 0.5),
                 )
             else:
                 # Fallback parsing for non-JSON responses
@@ -293,7 +281,6 @@ Content: {content}
                     decision=decision,
                     rationale=response_content,
                     rule_citations=[rule.get("rule_identifier", "") for rule in relevant_rules[:3]],
-                    confidence_score=0.7,
                 )
 
         except Exception as e:
@@ -302,7 +289,6 @@ Content: {content}
                 decision="DISQUALIFICATION",
                 rationale="Error parsing analysis response. Please consult official rules.",
                 rule_citations=[],
-                confidence_score=0.0,
             )
 
     async def analyze_situation(self, scenario: str) -> Dict[str, Any]:

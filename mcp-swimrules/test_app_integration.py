@@ -106,16 +106,22 @@ async def test_api_response_conversion():
         api_response = _convert_mcp_to_response(mock_mcp_result)
 
         print(f"✓ Decision: {api_response.decision}")
-        print(f"✓ Confidence: {api_response.confidence}")
         print(f"✓ Rationale: {api_response.rationale[:100]}...")
         print(f"✓ Citations count: {len(api_response.rule_citations)}")
 
-        # Validate citation structure
+        # Validate citation structure (now simple strings per PRD)
         for citation in api_response.rule_citations:
-            if hasattr(citation, "rule_number") and hasattr(citation, "rule_title"):
-                print(f"✓ Citation: {citation.rule_number} - {citation.rule_title}")
+            if isinstance(citation, str):
+                print(f"✓ Citation: {citation}")
             else:
-                print("✗ Invalid citation structure")
+                print(f"✗ Invalid citation structure - expected string, got {type(citation)}")
+
+        # Validate required fields per PRD Section 4.2.1
+        required_attrs = ["decision", "rationale", "rule_citations"]
+        if all(hasattr(api_response, attr) for attr in required_attrs):
+            print("✓ All required PRD fields present")
+        else:
+            print("✗ Missing required PRD fields")
 
         return True
 

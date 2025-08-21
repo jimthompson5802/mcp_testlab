@@ -131,14 +131,13 @@ class SwimRulesAgent {
     }
 
     /**
-     * Display analysis results
+     * Display analysis results as specified in PRD Section 4.3.2
      */
     displayResults(result) {
         // Update decision banner
         const decisionBanner = document.getElementById('decisionBanner');
         const decisionIcon = document.getElementById('decisionIcon');
         const decisionText = document.getElementById('decisionText');
-        const confidenceText = document.getElementById('confidenceText');
         
         decisionBanner.className = 'decision-banner';
         
@@ -151,8 +150,6 @@ class SwimRulesAgent {
             decisionIcon.textContent = '✅';
             decisionText.textContent = 'ALLOWED';
         }
-        
-        confidenceText.textContent = `Confidence: ${Math.round(result.confidence)}%`;
         
         // Update rationale
         const rationaleText = document.getElementById('rationaleText');
@@ -169,7 +166,7 @@ class SwimRulesAgent {
     }
 
     /**
-     * Display rule citations
+     * Display rule citations as simple identifiers per PRD Section 4.3.2
      */
     displayCitations(citations) {
         const citationsContent = document.getElementById('citationsContent');
@@ -179,58 +176,21 @@ class SwimRulesAgent {
             return;
         }
         
-        // Group citations by category
-        const groupedCitations = this.groupCitationsByCategory(citations);
-        
-        let html = '';
-        for (const [category, citationList] of Object.entries(groupedCitations)) {
-            html += `
-                <div class="citation-category">
-                    <h5>${this.formatCategoryName(category)}:</h5>
-                    <ul class="citation-list">
-                        ${citationList.map(citation => `
-                            <li class="citation-item">
-                                <span class="citation-number">${citation.rule_number}</span>
-                                <span class="citation-title">- ${citation.rule_title}</span>
-                            </li>
-                        `).join('')}
-                    </ul>
-                </div>
-            `;
-        }
+        // Create formatted citation list
+        let html = `
+            <div class="citation-category">
+                <h5>Rule Citations:</h5>
+                <ul class="citation-list">
+                    ${citations.map(citation => `
+                        <li class="citation-item">
+                            <span class="citation-number">${citation}</span>
+                        </li>
+                    `).join('')}
+                </ul>
+            </div>
+        `;
         
         citationsContent.innerHTML = html;
-    }
-
-    /**
-     * Group citations by category
-     */
-    groupCitationsByCategory(citations) {
-        const grouped = {};
-        
-        citations.forEach(citation => {
-            const category = citation.rule_category || 'General Rules';
-            if (!grouped[category]) {
-                grouped[category] = [];
-            }
-            grouped[category].push(citation);
-        });
-        
-        return grouped;
-    }
-
-    /**
-     * Format category name for display
-     */
-    formatCategoryName(category) {
-        // Convert categories to more user-friendly names
-        const categoryMap = {
-            'Stroke Technique': 'Primary Rules',
-            'Officials': 'Supporting Rules',
-            'General Rules': 'Related Interpretations'
-        };
-        
-        return categoryMap[category] || category;
     }
 
     /**
