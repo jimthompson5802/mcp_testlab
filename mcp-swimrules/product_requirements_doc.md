@@ -332,6 +332,14 @@ made with both hands separated and simultaneously at, above, or below the water
 surface.
 ```   
 
+### 4.5 Utilities
+
+#### 4.5.1 Rule Lookup Utility
+- prompt the user for a query
+- Given a query, retrieve relevant rules for that query
+- Integrates with the ChromaDB vector database for efficient similarity searches
+- Display rule metadata (e.g., rule ID, title, description) alongside the rule text
+
 ## 5. Technical Requirements
 
 ### 5.1 Architecture
