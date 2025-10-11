@@ -33,8 +33,11 @@ SYSTEM_MESSAGE = SystemMessage(
 # Load environment variables from .env file
 load_dotenv()
 
-# Initialize chat model with OpenAI GPT-4-mini
-model = init_chat_model("openai:gpt-4o-mini")
+# Initialize chat model
+# model = init_chat_model("openai:gpt-4o")
+model = init_chat_model("ollama:qwen2.5:32b")
+# model = init_chat_model("ollama:llama3.1:8b")
+
 
 # MCP client connects to FastMCP server(s)
 client = MultiServerMCPClient(
@@ -90,9 +93,7 @@ async def async_input(prompt: str = "") -> str:
 async def prompt_user(state: MessagesState):
     """Prompts the user for input and returns it as a message."""
     try:
-        user_input = await async_input(
-            "\nEnter your question (or press Enter to exit): "
-        )
+        user_input = await async_input("\nEnter your question (or press Enter to exit): ")
         if not user_input:
             return {"messages": [], "exit": True}
         print(f"\nProcessing: '{user_input}'")
@@ -137,9 +138,7 @@ interactive_builder.add_conditional_edges(
     lambda state: "call_model" if not state.get("exit", False) else END,
     {"call_model": "call_model", END: END},
 )
-interactive_builder.add_conditional_edges(
-    "call_model", should_continue, {"tools": "tools", END: "print_result"}
-)
+interactive_builder.add_conditional_edges("call_model", should_continue, {"tools": "tools", END: "print_result"})
 interactive_builder.add_edge("tools", "call_model")
 # Use direct edge to prompt_user instead of conditional to avoid infinite recursion
 interactive_builder.add_edge("print_result", "prompt_user")
@@ -155,9 +154,7 @@ if not os.path.exists("./images/agent_langgraph_workflow.png"):
 
 async def main():
     """Main function to run the interactive agent."""
-    print(
-        "\nWelcome to the MCP Agent! Ask me questions and I'll use tools to help answer them."
-    )
+    print("\nWelcome to the MCP Agent! Ask me questions and I'll use tools to help answer them.")
     print("Type an empty message to exit.")
 
     try:
