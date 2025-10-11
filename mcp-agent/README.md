@@ -11,7 +11,7 @@ agent_client.py is an interactive client application that connects AI models wit
 #### Key Features
 
 - **Multi-Server MCP Client**: Connects to multiple MCP servers (math and sentiment tools)
-- **LangChain Integration**: Uses LangChain's chat model interface with OpenAI's GPT-4o-mini
+- **LangChain Integration**: Uses LangChain's chat model interface with LLMs from different providers, e.g., OpenAI, Ollama.
 - **LangGraph Workflow**: Implements a state machine using StateGraph for conversation flow
 - **Interactive Interface**: Provides a command-line interface for user interaction
 - **Asynchronous Design**: Leverages Python's asyncio for non-blocking operations
